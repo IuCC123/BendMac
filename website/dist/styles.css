@@ -87,3 +87,17 @@
 .nav-download { display: inline-flex; align-items: center; gap: 8px; }
 .nav-download .link-icon { width: 15px; height: 15px; margin-left: 0; }
 .credit .link-icon, .footer .link-icon { width: 14px; height: 14px; vertical-align: -2px; }
+
+/* The cutout's rear hinge meets the display; transparent margins stay outside. */
+.macbook { isolation: isolate; }
+.macbook .demo-window { width: 65%; margin-inline: auto; z-index: 1; border-radius: 18px 18px 5px 5px; box-shadow: 0 0 0 1px #ffffff26; }
+.macbook-base { display: block; width: 100%; height: auto; margin-top: calc(-10.6% - 2px); margin-bottom: -9%; position: relative; z-index: 0; pointer-events: none; }
+#scrub-preview { position: absolute; inset: 0; width: 100%; height: 100%; }
+#scrub-preview[hidden] { display: none; }
+.replay { z-index: 2; }
+input[type=range] { min-height: 44px; touch-action: pan-y; }
+@media(max-width:700px) {
+  .macbook .demo-window { border-width: 4px; border-radius: 10px 10px 3px 3px; }
+  .macbook .replay { padding: 8px; bottom: 7px; right: 7px; }
+  .macbook .replay span { display: none; }
+}

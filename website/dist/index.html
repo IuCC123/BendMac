@@ -12,8 +12,9 @@
   <meta property="og:description" content="A gentle blur as you close the lid. Free, native, and open source. Inspired by Bendy.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/icon.png" type="image/png">
-  <link rel="stylesheet" href="styles.css">
-  <script type="module" src="app.js"></script>
+  <link rel="stylesheet" href="styles.css?v=5">
+  <script type="module" src="app.js?v=5"></script>
+  <script src="preview.js?v=5" defer></script>
   <script type="module" src="stars.js"></script>
   <script src="motion.js" defer></script>
   <script src="downloads.js" defer></script>
@@ -35,12 +36,16 @@
       <p class="download-total"><a id="download-count" hidden href="https://github.com/IuCC123/BendMac/releases" title="DMG and ZIP downloads across GitHub releases, including repeat downloads and updates."></a></p>
     </section>
     <section class="demo-section" id="effect" aria-label="BendMac animation preview">
+      <div class="macbook">
       <div class="demo-window">
         <video id="preview" playsinline muted preload="auto" poster="assets/preview-poster.png?v=0.4.3" aria-label="BendMac desktop becomes progressively blurred near the top while staying nearly flat as the lid closes">
           <source src="assets/bend-preview.mp4?v=0.4.3" type="video/mp4">
           <p>Your browser cannot play this video. <a href="assets/bend-preview.mp4?v=0.4.3">Download the animation preview.</a></p>
         </video>
+        <canvas id="scrub-preview" width="480" height="300" aria-hidden="true" hidden></canvas>
         <button id="play" class="replay" type="button" aria-label="Play fold animation"><svg id="play-icon" class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5 19 12 8 19Z"/></svg><span id="play-label">Play the fold</span></button>
+      </div>
+      <img class="macbook-base" src="assets/macbook-base.png" alt="" width="2079" height="756" aria-hidden="true">
       </div>
       <div class="demo-controls">
         <label for="lid">Try the fold</label>
