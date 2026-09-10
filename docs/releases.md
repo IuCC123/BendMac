@@ -34,3 +34,7 @@ Sparkle signatures authenticate updates. They do not replace Apple Developer ID 
 Never commit private keys. Contributors can compile the app with the public key; only the release maintainer needs access to the private key.
 
 Versions before 0.4.0 don't contain an updater. Those users need to download an updater-enabled version manually once.
+
+## Drag-to-install download
+
+Run `./scripts/dmg.sh` after building to create `build/BendMac-macOS.dmg`. It generates the Retina background and Finder layout without opening Finder. Upload the DMG alongside the ZIP. Keep the signed ZIP for Sparkle updates.
