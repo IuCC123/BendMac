@@ -6,9 +6,14 @@ struct MetalPreview: NSViewRepresentable {
 
     func makeCoordinator() -> Coordinator { Coordinator(model: model) }
     func makeNSView(context: Context) -> MTKView {
-        context.coordinator.renderer?.makeView() ?? MTKView()
+        let view = context.coordinator.renderer?.makeView() ?? MTKView()
+        view.isPaused = true
+        view.enableSetNeedsDisplay = true
+        return view
     }
-    func updateNSView(_ view: MTKView, context: Context) {}
+    func updateNSView(_ view: MTKView, context: Context) {
+        view.setNeedsDisplay(view.bounds)
+    }
     static func dismantleNSView(_ view: MTKView, coordinator: Coordinator) {
         view.isPaused = true
         view.delegate = nil
@@ -50,6 +55,7 @@ struct SettingsView: View {
     @State private var page = SettingsPage.appearance
     @State private var history: [SettingsPage] = []
     @State private var forwardHistory: [SettingsPage] = []
+    @State private var coffeeHovered = false
 
     var body: some View {
         HStack(spacing: 0) {
@@ -116,6 +122,40 @@ struct SettingsView: View {
                 .padding(.horizontal, 10)
                 .padding(.top, 12)
             Spacer()
+            Link(destination: URL(string: "https://buymeacoffee.com/jamiepen")!) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Buy me a coffee")
+                            .font(.system(size: 11, weight: .medium))
+                        Text("Optional. Always free.")
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "cup.and.saucer.fill")
+                        .foregroundStyle(.orange)
+                        .offset(y: coffeeHovered && !reduceMotion ? -1 : 0)
+                }
+                .labelStyle(SidebarLabelStyle())
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 10)
+                .frame(height: 46)
+                .background(
+                    Color.orange.opacity(coffeeHovered ? 0.14 : 0.06),
+                    in: RoundedRectangle(cornerRadius: 8)
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(Color.orange.opacity(coffeeHovered ? 0.25 : 0.12))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .onHover { coffeeHovered = $0 }
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: coffeeHovered)
+            .help("Support Jamie’s student project. Opens Buy Me a Coffee in your browser. BendMac stays completely free.")
+            .padding(.bottom, 8)
             Button(action: updates.checkForUpdates) {
                 Label(
                     updates.availableVersion == nil ? "Check for updates" : "Update available",

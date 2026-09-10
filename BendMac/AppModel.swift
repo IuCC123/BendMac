@@ -79,7 +79,7 @@ final class OverlayWindow: NSPanel {
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                if self?.enabled == true {
+                if self?.enabled == true || self?.starting == true {
                     self?.disable(message: "Display configuration changed. Enable again to reconnect.")
                 }
             }
@@ -146,10 +146,7 @@ final class OverlayWindow: NSPanel {
         Task {
             do {
                 try await capture.start(displayID: displayID)
-                guard generation == currentGeneration else {
-                    await capture.stop()
-                    return
-                }
+                guard generation == currentGeneration else { return }
                 let renderer = try BendRenderer(frames: frames)
                 renderer.parameters = { [weak self] in self?.parameters() ?? BendParameters() }
                 let window = OverlayWindow(
@@ -178,6 +175,7 @@ final class OverlayWindow: NSPanel {
                 status = "Live desktop connected. Close the lid gently to bend it."
                 if ProcessInfo.processInfo.arguments.contains("--smoke") { beginSmokeTest() }
             } catch {
+                guard generation == currentGeneration else { return }
                 await capture.stop()
                 starting = false
                 status =

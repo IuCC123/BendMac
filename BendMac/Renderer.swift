@@ -43,6 +43,8 @@ final class BendRenderer: NSObject, MTKViewDelegate {
     private var blurTextures = [MTLTexture]()
     private var blurKernels = [MPSImageGaussianBlur]()
     private var blurStrength: Float = -1
+    private lazy var scaleKernel = MPSImageBilinearScale(device: device)
+    private var blurredSource: MTLTexture?
     let frames: FrameStore
     var parameters: @MainActor () -> BendParameters = { BendParameters() }
 
@@ -84,7 +86,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         view.colorPixelFormat = .bgra8Unorm
         view.clearColor = MTLClearColorMake(0, 0, 0, 1)
         view.preferredFramesPerSecond = 60
-        view.framebufferOnly = false
+        view.framebufferOnly = true
         view.delegate = self
         return view
     }
@@ -95,7 +97,8 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         else { return }
         var retained: CVMetalTexture?
         var texture = fallback
-        if let frame = frames.get() {
+        let sourceFrame = frames.get()
+        if let frame = sourceFrame {
             CVMetalTextureCacheCreateTextureFromImage(
                 nil, cache, frame, nil, .bgra8Unorm, CVPixelBufferGetWidth(frame),
                 CVPixelBufferGetHeight(frame), 0, &retained)
@@ -103,7 +106,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         }
         var p = MainActor.assumeIsolated { parameters() }
         p.aspect = Float(view.drawableSize.width / max(1, view.drawableSize.height))
-        let blurred = encodeBlur(texture, command: command, strength: p.blur)
+        let blurred = p.progress < 0.0001 ? [texture, texture, texture, texture] : encodeBlur(texture, command: command, strength: p.blur)
         guard let encoder = command.makeRenderCommandEncoder(descriptor: pass) else { return }
         encoder.setRenderPipelineState(pipeline)
         encoder.setFragmentTexture(texture, index: 0)
@@ -113,7 +116,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         encoder.endEncoding()
         command.present(drawable)
         // Retain the CV-backed texture until GPU completion.
-        let held = retained
+        let held = (retained, sourceFrame)
         command.addCompletedHandler { _ in withExtendedLifetime(held) {} }
         command.commit()
     }
@@ -129,9 +132,11 @@ final class BendRenderer: NSObject, MTKViewDelegate {
             descriptor.storageMode = .private
             blurTextures = (0..<5).compactMap { _ in device.makeTexture(descriptor: descriptor) }
             blurStrength = -1
+            blurredSource = nil
         }
         guard blurTextures.count == 5 else { return [source, source, source, source] }
         if abs(blurStrength - strength) > 0.001 {
+            blurredSource = nil
             blurKernels = [4.0, 10.0, 28.0, 64.0].map {
                 let kernel = MPSImageGaussianBlur(
                     device: device, sigma: Float($0) * Float(w) / 880 * strength / 0.9)
@@ -140,13 +145,18 @@ final class BendRenderer: NSObject, MTKViewDelegate {
             }
             blurStrength = strength
         }
-        MPSImageBilinearScale(device: device).encode(
+        // The static settings wallpaper needs new blur passes only when strength changes.
+        if source === fallback && blurredSource === fallback && abs(blurStrength - strength) <= 0.001 {
+            return Array(blurTextures.dropFirst())
+        }
+        scaleKernel.encode(
             commandBuffer: command, sourceTexture: source, destinationTexture: blurTextures[0])
         for i in 0..<4 {
             blurKernels[i].encode(
                 commandBuffer: command, sourceTexture: blurTextures[0],
                 destinationTexture: blurTextures[i + 1])
         }
+        blurredSource = source
         return Array(blurTextures.dropFirst())
     }
     /// Offline QA uses the very same compiled GPU pipeline and preview texture.
