@@ -68,3 +68,15 @@
 @media (prefers-reduced-transparency: reduce) {
   .nav { background: var(--page); }
 }
+
+.download-total { min-height: 20px; margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.download-total a { font-variant-numeric: tabular-nums; }
+.scroll-reveal { transition: opacity 700ms cubic-bezier(.22,1,.36,1), transform 700ms cubic-bezier(.22,1,.36,1); }
+.reveal-pending { opacity: 0; transform: translateY(18px); }
+.scroll-reveal:focus-within { opacity: 1; transform: none; transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal { opacity: 1; transform: none; transition: none; }
+}
+@media print {
+  .scroll-reveal { opacity: 1; transform: none; }
+}
