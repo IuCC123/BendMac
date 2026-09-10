@@ -31,6 +31,7 @@ targets:
         SUPublicEDKey: 'iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44='
         SUVerifyUpdateBeforeExtraction: true
         SUEnableAutomaticChecks: true
+        SUScheduledCheckInterval: 21600
         SUAutomaticallyUpdate: false
         SUSendProfileInfo: false
     entitlements:
@@ -48,8 +49,8 @@ targets:
         INFOPLIST_KEY_NSHumanReadableCopyright: 'Copyright 2026 BendMac contributors. MIT License.'
         INFOPLIST_KEY_CFBundleDisplayName: BendMac
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
-        MARKETING_VERSION: '0.4.1'
-        CURRENT_PROJECT_VERSION: '5'
+        MARKETING_VERSION: '0.4.2'
+        CURRENT_PROJECT_VERSION: '6'
     dependencies:
       - package: Sparkle
       - sdk: AppKit.framework

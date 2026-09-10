@@ -30,6 +30,8 @@
 	<string>https://raw.githubusercontent.com/IuCC123/BendMac/main/docs/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44=</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>21600</integer>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>SUVerifyUpdateBeforeExtraction</key>

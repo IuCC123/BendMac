@@ -45,6 +45,8 @@ struct SettingsView: View {
     @ObservedObject var model: AppModel
     @ObservedObject var updates: UpdateController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Namespace private var sidebarSelection
     @State private var page = SettingsPage.appearance
     @State private var history: [SettingsPage] = []
     @State private var forwardHistory: [SettingsPage] = []
@@ -68,7 +70,14 @@ struct SettingsView: View {
                     .frame(maxWidth: 620)
                     .frame(maxWidth: .infinity)
                 }
+                .id(page)
+                .transition(
+                    reduceMotion
+                        ? .identity
+                        : .modifier(
+                            active: PageTransition(amount: 1), identity: PageTransition(amount: 0)))
             }
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.22), value: page)
             .background(Color(nsColor: .windowBackgroundColor).opacity(0.92))
         }
         .frame(minWidth: 740, idealWidth: 800, minHeight: 670, idealHeight: 720)
@@ -89,9 +98,12 @@ struct SettingsView: View {
                         .padding(.horizontal, 10)
                         .frame(height: 36)
                         .foregroundStyle(page == item ? Color.white : Color.primary)
-                        .background(
-                            page == item ? Color.blue : Color.clear, in: RoundedRectangle(cornerRadius: 7)
-                        )
+                        .background {
+                            if page == item {
+                                selectionBackground
+                                    .matchedGeometryEffect(id: "sidebar-selection", in: sidebarSelection)
+                            }
+                        }
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -110,8 +122,10 @@ struct SettingsView: View {
                     systemImage: "arrow.down.circle"
                 )
                 .font(.system(size: 11, weight: .medium))
+                .labelStyle(SidebarLabelStyle())
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(10)
+                .padding(.horizontal, 10)
+                .frame(height: 36)
                 .background(
                     updates.availableVersion == nil ? Color.clear : Color.blue.opacity(0.12),
                     in: RoundedRectangle(cornerRadius: 7)
@@ -121,20 +135,48 @@ struct SettingsView: View {
             .buttonStyle(.plain)
             .foregroundStyle(updates.availableVersion == nil ? Color.secondary : Color.blue)
             .disabled(!updates.canCheckForUpdates)
-            HStack(spacing: 6) {
+            .help(
+                updates.availableVersion.map { "Version \($0) is available. Click to download and install." }
+                    ?? "Checks automatically at launch and every six hours while running.")
+            HStack(spacing: 9) {
                 Circle().fill(model.enabled ? Color.green : Color.secondary.opacity(0.45))
                     .frame(width: 6, height: 6)
+                    .frame(width: 15)
                 Text(model.enabled ? "Effect enabled" : "Effect paused")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
-            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 10)
+            .frame(height: 36)
         }
+        .animation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.86), value: page)
         .padding(.horizontal, 12)
         .padding(.top, 44)
         .padding(.bottom, 12)
         .frame(width: 176)
         .background(.ultraThinMaterial)
+    }
+
+    private var selectionBackground: some View {
+        RoundedRectangle(cornerRadius: 9)
+            .fill(reduceTransparency ? AnyShapeStyle(Color.blue) : AnyShapeStyle(.ultraThinMaterial))
+            .overlay {
+                RoundedRectangle(cornerRadius: 9)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue.opacity(0.88), Color.blue.opacity(0.98)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing))
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 9)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [.white.opacity(0.42), .white.opacity(0.05)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.75)
+            }
+            .shadow(color: .blue.opacity(0.16), radius: 5, y: 2)
+            .allowsHitTesting(false)
     }
 
     private var toolbar: some View {
@@ -494,5 +536,16 @@ private struct PreviewPillStyle: ButtonStyle {
             .shadow(color: .black.opacity(0.16), radius: 4, y: 2)
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.96 : 1)
             .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+private struct PageTransition: ViewModifier {
+    var amount: Double
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(1 - amount)
+            .blur(radius: amount * 4)
+            .offset(y: amount * 6)
     }
 }
