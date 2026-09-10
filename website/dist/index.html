@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fafafa">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111113" media="(prefers-color-scheme: dark)">
   <title>BendMac — A softer side of your Mac.</title>
   <meta name="description" content="A gentle desktop blur that follows your MacBook lid. BendMac is a free, open-source native macOS app, inspired by Bendy. Download it or help make it better.">
   <meta property="og:title" content="BendMac — A softer side of your Mac.">
@@ -13,6 +15,7 @@
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="app.js"></script>
   <script type="module" src="stars.js"></script>
+  <script src="motion.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
