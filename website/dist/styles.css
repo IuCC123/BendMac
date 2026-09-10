@@ -80,3 +80,10 @@
 @media print {
   .scroll-reveal { opacity: 1; transform: none; }
 }
+
+/* Reserve icon space so morphs never move the surrounding label. */
+.link-icon { display: inline-block; vertical-align: -4px; width: 18px; height: 18px; margin-left: 4px; }
+.button .link-icon { margin-left: 0; }
+.nav-download { display: inline-flex; align-items: center; gap: 8px; }
+.nav-download .link-icon { width: 15px; height: 15px; margin-left: 0; }
+.credit .link-icon, .footer .link-icon { width: 14px; height: 14px; vertical-align: -2px; }
