@@ -1,8 +1,8 @@
 # BendMac
 
-[![BendMac demo](docs/demo.gif)](https://bendmac.app/assets/bend-preview.mp4)
+[![BendMac demo](docs/demo.gif)](https://bendmac.app/assets/bendmac-laptop-demo.mp4)
 
-[Download for Mac](https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg) · [Website](https://bendmac.app) · [Full demo](https://bendmac.app/assets/bend-preview.mp4)
+[Download for Mac](https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg) · [Website](https://bendmac.app) · [Full demo](https://bendmac.app/assets/bendmac-laptop-demo.mp4)
 
 Your desktop bends and blurs as you close your MacBook lid. BendMac runs in the menu bar and is free and open source.
 

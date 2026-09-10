@@ -17,7 +17,8 @@ fragment float4 bendFragment(VertexOut in [[stage_in]], texture2d<float> desktop
     float lift=0.32*fold*p.perspective;
     float projectedY=in.uv.y*(1.0+lift)/(1.0+lift*in.uv.y);
     float sourceY=mix(in.uv.y,projectedY,hingeWeight);
-    float inset=0.10*fold*p.perspective*height*hingeWeight;
+    // A continuous taper avoids flaring back into the bezel above the hinge.
+    float inset=0.10*fold*p.perspective*height;
     float2 uv=float2((in.uv.x-0.5)/(1.0-2.0*inset)+0.5,sourceY);
     // Concentrate defocus at the upper edge, including the menu bar. Keeping
     // the centre readable avoids making the whole desktop look out of focus.
@@ -29,7 +30,7 @@ fragment float4 bendFragment(VertexOut in [[stage_in]], texture2d<float> desktop
     else if(radius<28.0) color=mix(soft.sample(s,uv).rgb,medium.sample(s,uv).rgb,smoothstep(10.0,28.0,radius));
     else color=mix(medium.sample(s,uv).rgb,strong.sample(s,uv).rgb,smoothstep(28.0,64.0,radius));
     // Feather the sides, not a horizontal black strip across the top.
-    float feather=max(fwidth(in.uv.x),0.022*fold*(0.25+0.75*p.blur)*height*hingeWeight);
+    float feather=max(fwidth(in.uv.x),0.022*fold*(0.25+0.75*p.blur)*height);
     float edge=min(in.uv.x-inset,1.0-inset-in.uv.x);
     float coverage=smoothstep(-feather,feather,edge);
     float sideShade=exp(-max(edge,0.0)/0.035)*fold*p.shadow*0.22*height*hingeWeight;

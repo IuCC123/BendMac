@@ -7,6 +7,31 @@
   const label = document.getElementById('play-label');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const frames = new Image();
+  const laptop = document.querySelector('.macbook');
+  let animationFrame = 0;
+  const lid = laptop.querySelector('.lid-stage');
+  function alignPerspective() {
+    // The base image widens from 65% at the hinge to 86% at its front edge.
+    // Keep projection proportional to the device instead of the viewport.
+    laptop.style.perspective = `${laptop.clientWidth * 1.6}px`;
+    laptop.style.perspectiveOrigin = `50% ${lid.offsetHeight}px`;
+  }
+  new ResizeObserver(alignPerspective).observe(laptop);
+  alignPerspective();
+  function hinge(phase) {
+    const closure = Math.sin(phase * Math.PI / 2) ** 2;
+    laptop.style.setProperty('--lid-angle', `${-68 * closure}deg`);
+    laptop.style.setProperty('--lid-shade', String(closure * .25));
+  }
+  function trackPlayback() {
+    if (manual) return;
+    const phase = Math.min(1, video.currentTime / 4.2);
+    const closure = phase <= .5 ? phase * 2 : (1 - phase) * 2;
+    hinge(closure);
+    slider.value = String(Math.round(closure * 100));
+    slider.setAttribute('aria-valuetext', `${slider.value}% closed`);
+    if (!video.paused) animationFrame = requestAnimationFrame(trackPlayback);
+  }
   let manual = false;
   let interacted = false;
   let pendingPlay = false;
@@ -24,13 +49,14 @@
     canvas.hidden = false;
   }
   frames.onload = () => { if (manual) draw(); };
-  frames.src = 'assets/fold-frames.jpg?v=5';
+  frames.src = 'assets/fold-frames.jpg?v=8';
   slider.addEventListener('input', () => {
     interacted = true;
     pendingPlay = false;
     manual = true;
     video.pause();
     slider.setAttribute('aria-valuetext', `${slider.value}% closed`);
+    hinge(Number(slider.value) / 100);
     draw();
   });
   function play() {
@@ -47,14 +73,19 @@
   video.addEventListener('loadedmetadata', () => {
     if (pendingPlay) { pendingPlay = false; play(); }
   });
-  video.addEventListener('play', state);
-  video.addEventListener('pause', state);
-  video.addEventListener('timeupdate', () => {
-    if (manual) return;
-    const phase = Math.min(1, video.currentTime / 4.2);
-    slider.value = String(Math.round((phase <= .5 ? phase * 2 : (1 - phase) * 2) * 100));
-    slider.setAttribute('aria-valuetext', `${slider.value}% closed`);
+  video.addEventListener('play', () => {
+    state();
+    cancelAnimationFrame(animationFrame);
+    trackPlayback();
   });
+  video.addEventListener('pause', () => {
+    cancelAnimationFrame(animationFrame);
+    state();
+  });
+  video.addEventListener('seeked', () => {
+    if (!manual) { cancelAnimationFrame(animationFrame); trackPlayback(); }
+  });
+  video.addEventListener('ended', () => { hinge(0); slider.value = '0'; });
   video.addEventListener('error', () => { label.textContent = 'Playback unavailable'; button.disabled = true; });
   document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
   reduced.addEventListener('change', () => { if (reduced.matches) video.pause(); });

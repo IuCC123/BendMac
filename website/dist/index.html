@@ -12,9 +12,9 @@
   <meta property="og:description" content="A gentle blur as you close the lid. Free, native, and open source. Inspired by Bendy.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/icon.png" type="image/png">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=9">
   <script type="module" src="app.js?v=5"></script>
-  <script src="preview.js?v=5" defer></script>
+  <script src="preview.js?v=8" defer></script>
   <script type="module" src="stars.js"></script>
   <script src="motion.js" defer></script>
   <script src="downloads.js" defer></script>
@@ -37,21 +37,25 @@
     </section>
     <section class="demo-section" id="effect" aria-label="BendMac animation preview">
       <div class="macbook">
+      <div class="lid-stage">
       <div class="demo-window">
         <video id="preview" playsinline muted preload="auto" poster="assets/preview-poster.png?v=0.4.3" aria-label="BendMac desktop becomes progressively blurred near the top while staying nearly flat as the lid closes">
-          <source src="assets/bend-preview.mp4?v=0.4.3" type="video/mp4">
-          <p>Your browser cannot play this video. <a href="assets/bend-preview.mp4?v=0.4.3">Download the animation preview.</a></p>
+          <source src="assets/bend-preview.mp4?v=local8" type="video/mp4">
+          <p>Your browser cannot play this video. <a href="assets/bend-preview.mp4?v=local8">Download the animation preview.</a></p>
         </video>
         <canvas id="scrub-preview" width="480" height="300" aria-hidden="true" hidden></canvas>
-        <button id="play" class="replay" type="button" aria-label="Play fold animation"><svg id="play-icon" class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5 19 12 8 19Z"/></svg><span id="play-label">Play the fold</span></button>
+
+      </div>
+      <div class="lid-back" aria-hidden="true"></div>
       </div>
       <img class="macbook-base" src="assets/macbook-base.png" alt="" width="2079" height="756" aria-hidden="true">
       </div>
       <div class="demo-controls">
+        <button id="play" class="replay" type="button" aria-label="Play fold animation"><svg id="play-icon" class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5 19 12 8 19Z"/></svg><span id="play-label">Play the fold</span></button>
         <label for="lid">Try the fold</label>
-        <div class="range-wrap"><span>Open</span><input id="lid" type="range" min="0" max="100" step="1" value="0" aria-label="Preview lid closure" aria-valuetext="Lid open"><span>Closed</span></div>
+        <div class="range-wrap"><span>Open</span><input id="lid" type="range" min="0" max="100" step="1" value="0" aria-label="Preview lid closure" aria-valuetext="Lid open"><span>Folded</span></div>
       </div>
-      <p class="demo-caption">The actual BendMac effect. Slide to feel it.</p>
+      <p class="demo-caption">The actual BendMac effect. Slide to feel it. <a href="assets/bendmac-laptop-demo.mp4">Watch the full demo</a>.</p>
     </section>
     <section class="details section-width" aria-labelledby="details-title">
       <div class="details-intro"><p class="eyebrow">FEELS LIKE IT BELONGS</p><h2 id="details-title">Less motion.<br>More feeling.</h2><p>A soft blur gathers at the top of your desktop. A subtle bend follows your lid. Open it again, and everything settles back into place.</p></div>
