@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		05E7A7CA016AD8781F41F3DA /* Bend.metal in Sources */ = {isa = PBXBuildFile; fileRef = 8AFF6883209EE39BD2CF5022 /* Bend.metal */; };
 		0DE3E854340B863306E64486 /* LidSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AC90326DF923C6EAB7DEFC /* LidSensor.swift */; };
+		1062DED5656BBCB86929EE11 /* UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A96BFD2679DB4389831EEBF /* UpdateController.swift */; };
 		1DC0144DFF74690CA70F5BF8 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993D83A0B873AB93D46B0483 /* AppModel.swift */; };
 		33A8A26FCF44F81F775E8A1A /* Entry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D1816F70582CFF032CBDB3 /* Entry.swift */; };
 		37FFC175B195D8F9925A572D /* DesktopCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CAF9215B62CF70F96A13C22 /* DesktopCapture.swift */; };
@@ -16,6 +17,7 @@
 		43FAF554D12EF3B344F8F6AA /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3934019B3559FCC9DCCADB1F /* MetalKit.framework */; };
 		477629B3A06A941A1F8158B4 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B97CA6CED8030F620E638D2 /* AppKit.framework */; };
 		95C0272BC3C083DA4425DE99 /* ScreenCaptureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC485B35AC7BA11643B3440E /* ScreenCaptureKit.framework */; };
+		9FC6BE3BCCEC6241542235CD /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = C695F94A8B6820B659F1032E /* Sparkle */; };
 		A194A6E7774465A848E45AAA /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 337315396A369B2B585B1DEA /* AppIcon.icns */; };
 		D515515E736B9FD0EF35911E /* BendMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203595E140FAA5F91D4D32F4 /* BendMath.swift */; };
 		D59C3CDF8904738464E1B434 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426B23998F6D6AAF23776C0A /* SettingsView.swift */; };
@@ -31,6 +33,7 @@
 		3934019B3559FCC9DCCADB1F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		3F7D423B8BBF12ECF6D978C0 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		426B23998F6D6AAF23776C0A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		7A96BFD2679DB4389831EEBF /* UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateController.swift; sourceTree = "<group>"; };
 		8AFF6883209EE39BD2CF5022 /* Bend.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Bend.metal; sourceTree = "<group>"; };
 		8FB7E607F5BA81FA205DE475 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		993D83A0B873AB93D46B0483 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
@@ -46,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FC6BE3BCCEC6241542235CD /* Sparkle in Frameworks */,
 				477629B3A06A941A1F8158B4 /* AppKit.framework in Frameworks */,
 				95C0272BC3C083DA4425DE99 /* ScreenCaptureKit.framework in Frameworks */,
 				43FAF554D12EF3B344F8F6AA /* MetalKit.framework in Frameworks */,
@@ -98,6 +102,7 @@
 				B9AC90326DF923C6EAB7DEFC /* LidSensor.swift */,
 				8FB7E607F5BA81FA205DE475 /* Renderer.swift */,
 				426B23998F6D6AAF23776C0A /* SettingsView.swift */,
+				7A96BFD2679DB4389831EEBF /* UpdateController.swift */,
 			);
 			path = BendMac;
 			sourceTree = "<group>";
@@ -119,6 +124,7 @@
 			);
 			name = BendMac;
 			packageProductDependencies = (
+				C695F94A8B6820B659F1032E /* Sparkle */,
 			);
 			productName = BendMac;
 			productReference = ED4D890DE57AAFD5A818A284 /* BendMac.app */;
@@ -147,6 +153,9 @@
 			);
 			mainGroup = 1F9D5A5230DFFE13BEFE4C2B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E1F792380CF171EC58AB605E /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4C888D888A87958B85875AA7 /* Products */;
 			projectDirPath = "";
@@ -181,6 +190,7 @@
 				0DE3E854340B863306E64486 /* LidSensor.swift in Sources */,
 				DA962A0AFF0474D094D48ABC /* Renderer.swift in Sources */,
 				D59C3CDF8904738464E1B434 /* SettingsView.swift in Sources */,
+				1062DED5656BBCB86929EE11 /* UpdateController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -192,18 +202,24 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = BendMac;
 				INFOPLIST_KEY_CFBundleIconFile = AppIcon;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2026 BendMac contributors. MIT License.";
+				INFOPLIST_KEY_SUAutomaticallyUpdate = NO;
+				INFOPLIST_KEY_SUEnableAutomaticChecks = YES;
+				INFOPLIST_KEY_SUFeedURL = "https://raw.githubusercontent.com/IuCC123/BendMac/main/docs/appcast.xml";
+				INFOPLIST_KEY_SUPublicEDKey = "iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44=";
+				INFOPLIST_KEY_SUSendProfileInfo = NO;
+				INFOPLIST_KEY_SUVerifyUpdateBeforeExtraction = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = local.jamie.BendMac;
 				SDKROOT = macosx;
 			};
@@ -339,18 +355,24 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = BendMac;
 				INFOPLIST_KEY_CFBundleIconFile = AppIcon;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2026 BendMac contributors. MIT License.";
+				INFOPLIST_KEY_SUAutomaticallyUpdate = NO;
+				INFOPLIST_KEY_SUEnableAutomaticChecks = YES;
+				INFOPLIST_KEY_SUFeedURL = "https://raw.githubusercontent.com/IuCC123/BendMac/main/docs/appcast.xml";
+				INFOPLIST_KEY_SUPublicEDKey = "iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44=";
+				INFOPLIST_KEY_SUSendProfileInfo = NO;
+				INFOPLIST_KEY_SUVerifyUpdateBeforeExtraction = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = local.jamie.BendMac;
 				SDKROOT = macosx;
 			};
@@ -378,6 +400,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E1F792380CF171EC58AB605E /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = exactVersion;
+				version = 2.9.6;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C695F94A8B6820B659F1032E /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E1F792380CF171EC58AB605E /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4C625F9A3757CD8FFB0C8861 /* Project object */;
 }

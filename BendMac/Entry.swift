@@ -5,8 +5,10 @@ import SwiftUI
     var model: AppModel!
     var statusItem: NSStatusItem!
     var settings: NSWindow?
+    let updates = UpdateController()
     func applicationDidFinishLaunching(_ notification: Notification) {
         model = AppModel()
+        updates.start()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.button?.image = NSImage(systemSymbolName: "macbook", accessibilityDescription: "BendMac")
         statusItem.button?.toolTip = "BendMac — desktop fold"
@@ -22,6 +24,10 @@ import SwiftUI
         let preview = menu.addItem(
             withTitle: "Play preview", action: #selector(playPreview), keyEquivalent: "")
         preview.target = self
+        let updateItem = menu.addItem(
+            withTitle: "Check for Updates…", action: #selector(UpdateController.checkForUpdates),
+            keyEquivalent: "")
+        updateItem.target = updates
         menu.addItem(.separator())
         menu.addItem(
             withTitle: "Quit BendMac", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
@@ -37,14 +43,18 @@ import SwiftUI
     @objc func openSettings() {
         if settings == nil {
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 850, height: 750),
-                styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView], backing: .buffered,
+                contentRect: NSRect(x: 0, y: 0, width: 800, height: 720),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered,
                 defer: false)
             window.title = "BendMac"
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
             window.isReleasedWhenClosed = false
-            window.contentView = NSHostingView(rootView: SettingsView(model: model).padding(.top, 26))
+            window.titlebarSeparatorStyle = .none
+            window.isMovableByWindowBackground = true
+            window.contentMinSize = NSSize(width: 740, height: 670)
+            window.contentView = NSHostingView(rootView: SettingsView(model: model, updates: updates))
             window.center()
             window.delegate = self
             settings = window

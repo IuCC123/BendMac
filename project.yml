@@ -10,6 +10,10 @@ settings:
     CODE_SIGN_STYLE: Manual
     ENABLE_HARDENED_RUNTIME: YES
     MACOSX_DEPLOYMENT_TARGET: '14.0'
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.9.6
 targets:
   BendMac:
     type: application
@@ -24,9 +28,16 @@ targets:
         INFOPLIST_KEY_NSHumanReadableCopyright: 'Copyright 2026 BendMac contributors. MIT License.'
         INFOPLIST_KEY_CFBundleDisplayName: BendMac
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
-        MARKETING_VERSION: '0.3.0'
-        CURRENT_PROJECT_VERSION: '3'
+        MARKETING_VERSION: '0.4.0'
+        CURRENT_PROJECT_VERSION: '4'
+        INFOPLIST_KEY_SUFeedURL: https://raw.githubusercontent.com/IuCC123/BendMac/main/docs/appcast.xml
+        INFOPLIST_KEY_SUPublicEDKey: 'iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44='
+        INFOPLIST_KEY_SUVerifyUpdateBeforeExtraction: YES
+        INFOPLIST_KEY_SUEnableAutomaticChecks: YES
+        INFOPLIST_KEY_SUAutomaticallyUpdate: NO
+        INFOPLIST_KEY_SUSendProfileInfo: NO
     dependencies:
+      - package: Sparkle
       - sdk: AppKit.framework
       - sdk: ScreenCaptureKit.framework
       - sdk: MetalKit.framework

@@ -22,6 +22,10 @@ Settings has a preview you can try without screen recording permission. You can 
 
 Only the built-in display is affected. BendMac pauses for sleep or display changes and doesn't add itself to your login items.
 
+## Updates
+
+From version 0.4.0, BendMac can download and install updates in the app. Use **Check for updates** in the sidebar or menu bar. Sparkle verifies each update before installing it. If you have an older version, download the new app manually once.
+
 ## Privacy
 
 ScreenCaptureKit supplies the desktop frames for the effect. They stay in memory: BendMac doesn't save recordings, capture audio, or upload screen content. Its own windows are excluded from capture so the effect doesn't feed back into itself.
