@@ -8,6 +8,7 @@ settings:
     SWIFT_VERSION: '5.0'
     CODE_SIGN_IDENTITY: '-'
     CODE_SIGN_STYLE: Manual
+    CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
     ENABLE_HARDENED_RUNTIME: YES
     MACOSX_DEPLOYMENT_TARGET: '14.0'
 packages:
@@ -19,6 +20,25 @@ targets:
     type: application
     platform: macOS
     sources: [BendMac]
+    info:
+      path: BendMac/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        CFBundleIconFile: AppIcon
+        SUFeedURL: https://raw.githubusercontent.com/IuCC123/BendMac/main/docs/appcast.xml
+        SUPublicEDKey: 'iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44='
+        SUVerifyUpdateBeforeExtraction: true
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: false
+        SUSendProfileInfo: false
+    entitlements:
+      path: BendMac/BendMac.entitlements
+      properties:
+        # Ad-hoc signatures have no Team ID for matching the embedded framework.
+        # Remove this exception when migrating to Developer ID distribution.
+        com.apple.security.cs.disable-library-validation: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: local.jamie.BendMac
@@ -28,14 +48,8 @@ targets:
         INFOPLIST_KEY_NSHumanReadableCopyright: 'Copyright 2026 BendMac contributors. MIT License.'
         INFOPLIST_KEY_CFBundleDisplayName: BendMac
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
-        MARKETING_VERSION: '0.4.0'
-        CURRENT_PROJECT_VERSION: '4'
-        INFOPLIST_KEY_SUFeedURL: https://raw.githubusercontent.com/IuCC123/BendMac/main/docs/appcast.xml
-        INFOPLIST_KEY_SUPublicEDKey: 'iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44='
-        INFOPLIST_KEY_SUVerifyUpdateBeforeExtraction: YES
-        INFOPLIST_KEY_SUEnableAutomaticChecks: YES
-        INFOPLIST_KEY_SUAutomaticallyUpdate: NO
-        INFOPLIST_KEY_SUSendProfileInfo: NO
+        MARKETING_VERSION: '0.4.1'
+        CURRENT_PROJECT_VERSION: '5'
     dependencies:
       - package: Sparkle
       - sdk: AppKit.framework

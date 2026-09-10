@@ -6,6 +6,8 @@ BendMac uses Sparkle 2 for in-app updates. The app reads `docs/appcast.xml` from
 
 The private update-signing key is stored in the macOS login Keychain under the Sparkle account `BendMac`. The public key is in `project.yml`. Keep a secure backup of the private key outside this repository. Losing it would prevent existing installations from trusting future updates.
 
+The current ad-hoc build uses an app-scoped library-validation exception because it has no Apple Team ID. Remove that exception when switching the app and embedded framework to Developer ID signing.
+
 Sparkle signatures authenticate updates. They do not replace Apple Developer ID signing or notarization for the first download.
 
 ## Release steps

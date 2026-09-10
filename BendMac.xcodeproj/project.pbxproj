@@ -26,10 +26,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0A0966622081413289C75775 /* BendMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BendMac.entitlements; sourceTree = "<group>"; };
 		1CAF9215B62CF70F96A13C22 /* DesktopCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesktopCapture.swift; sourceTree = "<group>"; };
 		203595E140FAA5F91D4D32F4 /* BendMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BendMath.swift; sourceTree = "<group>"; };
 		2B97CA6CED8030F620E638D2 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		337315396A369B2B585B1DEA /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		36C958280C779A6B08F626F9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3934019B3559FCC9DCCADB1F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		3F7D423B8BBF12ECF6D978C0 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		426B23998F6D6AAF23776C0A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -96,9 +98,11 @@
 				337315396A369B2B585B1DEA /* AppIcon.icns */,
 				993D83A0B873AB93D46B0483 /* AppModel.swift */,
 				8AFF6883209EE39BD2CF5022 /* Bend.metal */,
+				0A0966622081413289C75775 /* BendMac.entitlements */,
 				203595E140FAA5F91D4D32F4 /* BendMath.swift */,
 				1CAF9215B62CF70F96A13C22 /* DesktopCapture.swift */,
 				B6D1816F70582CFF032CBDB3 /* Entry.swift */,
+				36C958280C779A6B08F626F9 /* Info.plist */,
 				B9AC90326DF923C6EAB7DEFC /* LidSensor.swift */,
 				8FB7E607F5BA81FA205DE475 /* Renderer.swift */,
 				426B23998F6D6AAF23776C0A /* SettingsView.swift */,
@@ -201,25 +205,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BendMac/BendMac.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BendMac/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BendMac;
 				INFOPLIST_KEY_CFBundleIconFile = AppIcon;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2026 BendMac contributors. MIT License.";
-				INFOPLIST_KEY_SUAutomaticallyUpdate = NO;
-				INFOPLIST_KEY_SUEnableAutomaticChecks = YES;
-				INFOPLIST_KEY_SUFeedURL = "https://raw.githubusercontent.com/IuCC123/BendMac/main/docs/appcast.xml";
-				INFOPLIST_KEY_SUPublicEDKey = "iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44=";
-				INFOPLIST_KEY_SUSendProfileInfo = NO;
-				INFOPLIST_KEY_SUVerifyUpdateBeforeExtraction = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.4.0;
+				MARKETING_VERSION = 0.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = local.jamie.BendMac;
 				SDKROOT = macosx;
 			};
@@ -259,6 +259,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -318,6 +319,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -354,25 +356,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BendMac/BendMac.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BendMac/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BendMac;
 				INFOPLIST_KEY_CFBundleIconFile = AppIcon;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2026 BendMac contributors. MIT License.";
-				INFOPLIST_KEY_SUAutomaticallyUpdate = NO;
-				INFOPLIST_KEY_SUEnableAutomaticChecks = YES;
-				INFOPLIST_KEY_SUFeedURL = "https://raw.githubusercontent.com/IuCC123/BendMac/main/docs/appcast.xml";
-				INFOPLIST_KEY_SUPublicEDKey = "iUPmfmMW4EovxYx3kXOHVfcOT9oeGCc3EMIx5p4wJ44=";
-				INFOPLIST_KEY_SUSendProfileInfo = NO;
-				INFOPLIST_KEY_SUVerifyUpdateBeforeExtraction = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.4.0;
+				MARKETING_VERSION = 0.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = local.jamie.BendMac;
 				SDKROOT = macosx;
 			};
