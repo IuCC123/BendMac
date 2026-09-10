@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fafafa">
+  <title>BendMac — A softer side of your Mac.</title>
+  <meta name="description" content="A gentle desktop blur that follows your MacBook lid. BendMac is a free, open-source native macOS app, inspired by Bendy. Download it or help make it better.">
+  <meta property="og:title" content="BendMac — A softer side of your Mac.">
+  <meta property="og:description" content="A gentle blur as you close the lid. Free, native, and open source. Inspired by Bendy.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/icon.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="nav">
+    <nav class="nav-inner" aria-label="Main navigation">
+      <a class="wordmark" href="#" aria-label="BendMac home"><img src="assets/icon.png" alt="" width="28" height="28">BendMac</a>
+      <div class="nav-links"><a href="#effect">The effect</a><a href="#open-source">Open source</a><a class="nav-download" href="https://github.com/IuCC123/BendMac/releases/latest">Download <span aria-hidden="true">↓</span></a></div>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">A LITTLE DELIGHT FOR MACOS</p>
+      <h1 id="hero-title">A softer side<br><span>of your Mac.</span></h1>
+      <p class="hero-copy">Your desktop gently blurs as you close the lid.<br>A small detail that feels right at home.</p>
+      <div class="hero-actions"><a class="button primary" href="https://github.com/IuCC123/BendMac/releases/latest">Download for Mac <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/IuCC123/BendMac">View on GitHub <span aria-hidden="true">↗</span></a></div>
+      <p class="compatibility">Free & open source <span aria-hidden="true">·</span> macOS 14+ <span aria-hidden="true">·</span> Apple silicon</p>
+    </section>
+    <section class="demo-section" id="effect" aria-label="BendMac animation preview">
+      <div class="demo-window">
+        <video id="preview" playsinline muted preload="auto" poster="assets/preview-poster.png" aria-label="BendMac desktop becomes progressively blurred near the top while staying nearly flat as the lid closes">
+          <source src="assets/bend-preview.mp4" type="video/mp4">
+          <p>Your browser cannot play this video. <a href="assets/bend-preview.mp4">Download the animation preview.</a></p>
+        </video>
+        <button id="play" class="replay" type="button" aria-label="Play fold animation"><span id="play-icon" aria-hidden="true">▶</span><span id="play-label">Play the fold</span></button>
+      </div>
+      <div class="demo-controls">
+        <label for="lid">Try the fold</label>
+        <div class="range-wrap"><span>Open</span><input id="lid" type="range" min="0" max="100" step="1" value="0" aria-label="Preview lid closure" aria-valuetext="Lid open"><span>Closed</span></div>
+      </div>
+      <p class="demo-caption">The actual BendMac effect. Slide to feel it.</p>
+    </section>
+    <section class="details section-width" aria-labelledby="details-title">
+      <div class="details-intro"><p class="eyebrow">FEELS LIKE IT BELONGS</p><h2 id="details-title">Less motion.<br>More feeling.</h2><p>A soft blur gathers at the top of your desktop. A subtle bend follows your lid. Open it again, and everything settles back into place.</p></div>
+      <div class="details-list">
+        <div><h3>In sync with your lid.</h3><p>Uses your MacBook’s lid-angle sensor to follow every movement. No keyboard shortcut to start the effect.</p></div>
+        <div><h3>Quietly in your menu bar.</h3><p>Adjust the blur, perspective, and shadow to your taste. Pause any time with Escape.</p></div>
+        <div><h3>Your desktop stays yours.</h3><p>Built with native Mac frameworks. Screen frames stay in memory on your Mac, without audio capture, saved recordings, or uploads.</p></div>
+      </div>
+    </section>
+    <section class="open-source" id="open-source" aria-labelledby="open-title">
+      <div class="open-inner">
+        <p class="eyebrow">FREE TO USE. YOURS TO BUILD ON.</p>
+        <h2 id="open-title">Made to be shared.</h2>
+        <p>BendMac is open source under the MIT license.<br>Read the code, make it your own, or help shape what comes next.</p>
+        <div class="open-actions"><a class="button dark" href="https://github.com/IuCC123/BendMac">Explore the source <span aria-hidden="true">↗</span></a><a class="text-link" href="https://github.com/IuCC123/BendMac/blob/main/CONTRIBUTING.md">Contribute to BendMac <span aria-hidden="true">↗</span></a></div>
+        <p class="contribution-note">Found a bug? Have a better idea for the animation?<br><a href="https://github.com/IuCC123/BendMac/issues">Open an issue</a> or send a pull request. Contributions are welcome.</p>
+      </div>
+    </section>
+    <section class="getting-started section-width" aria-labelledby="start-title">
+      <h2 id="start-title">A few things to know.</h2>
+      <div class="questions">
+        <details><summary>Will it work on my Mac?<span aria-hidden="true">+</span></summary><p>BendMac needs macOS 14 Sonoma or later and an Apple silicon MacBook with a lid-angle sensor. The current build has been tested on an M5 MacBook Air. The preview works without a sensor. External displays stay unchanged.</p></details>
+        <details><summary>How do I get started?<span aria-hidden="true">+</span></summary><p>Download the latest release, unzip it, and move BendMac to Applications. Open General and enable the desktop effect. Grant Screen Recording permission when macOS asks. The app appears in your menu bar.</p><p>This early release is not Developer ID signed or notarized. You can inspect the source and build it in Xcode yourself. If you use the download, macOS may require you to approve it in Privacy & Security.</p></details>
+        <details><summary>Why does it need Screen Recording?<span aria-hidden="true">+</span></summary><p>The effect uses a live image of your desktop so your wallpaper and windows blur together. Despite the permission’s name, BendMac does not save a recording. It does not capture audio or send screen content anywhere.</p></details>
+        <details><summary>Can I change the effect?<span aria-hidden="true">+</span></summary><p>Yes. Choose Silk, Shade, or Frost, then adjust perspective, blur, and shadow. Set the lid angle at which your desktop becomes clear. You can also try the animation with a slider in the app.</p></details>
+      </div>
+    </section>
+    <section class="credit section-width" aria-label="Inspiration">
+      <p>Inspired by <a href="https://trybendy.app/">Bendy <span aria-hidden="true">↗</span></a>.</p>
+      <p>Bendy brought the folding-screen idea to the Mac. BendMac is an independent, free implementation that builds on that inspiration. Thanks for the spark.</p>
+    </section>
+  </main>
+  <footer class="footer section-width"><a class="wordmark" href="#"><img src="assets/icon.png" alt="" width="24" height="24">BendMac</a><p>Made for Mac. Open to everyone.</p><div><a href="https://github.com/IuCC123/BendMac/blob/main/LICENSE">MIT license</a><a href="https://github.com/IuCC123/BendMac">GitHub <span aria-hidden="true">↗</span></a></div><small>Independent project. Not affiliated with Apple or Bendy.</small></footer>
+</body>
+</html>

@@ -1,0 +1,26 @@
+name: Build macOS app
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build checked-in Xcode project
+        run: |
+          if ! xcrun metal --version; then
+            xcodebuild -downloadComponent MetalToolchain
+          fi
+          xcodebuild -project BendMac.xcodeproj -scheme BendMac -configuration Release -derivedDataPath build CODE_SIGN_IDENTITY=- build
+      - name: Verify animation math
+        run: |
+          swiftc BendMac/BendMath.swift Tests/main.swift -o /tmp/bendmac-tests
+          /tmp/bendmac-tests
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BendMac-build
+          path: build/Build/Products/Release/BendMac.app

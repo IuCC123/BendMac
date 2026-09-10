@@ -1,0 +1,34 @@
+name: BendMac
+options:
+  bundleIdPrefix: local.jamie
+  deploymentTarget:
+    macOS: '14.0'
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    CODE_SIGN_IDENTITY: '-'
+    CODE_SIGN_STYLE: Manual
+    ENABLE_HARDENED_RUNTIME: YES
+    MACOSX_DEPLOYMENT_TARGET: '14.0'
+targets:
+  BendMac:
+    type: application
+    platform: macOS
+    sources: [BendMac]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.jamie.BendMac
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_CFBundleIconFile: AppIcon
+        INFOPLIST_KEY_NSHumanReadableCopyright: 'Copyright 2026 BendMac contributors. MIT License.'
+        INFOPLIST_KEY_CFBundleDisplayName: BendMac
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        MARKETING_VERSION: '0.2.0'
+        CURRENT_PROJECT_VERSION: '2'
+    dependencies:
+      - sdk: AppKit.framework
+      - sdk: ScreenCaptureKit.framework
+      - sdk: MetalKit.framework
+      - sdk: IOKit.framework
+      - sdk: Carbon.framework

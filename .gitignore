@@ -1,0 +1,7 @@
+build/
+*.log
+reference/
+verification/
+xcuserdata/
+.DS_Store
+website/.openai/
