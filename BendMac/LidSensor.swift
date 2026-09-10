@@ -43,6 +43,16 @@ final class LidSensor {
         self.timer = timer
         timer.resume()
     }
+    func reconnect() {
+        queue.async { [weak self] in
+            guard let self else { return }
+            if let device = self.device { IOHIDDeviceClose(device, 0) }
+            self.device = nil
+            if let devices = IOHIDManagerCopyDevices(self.manager) as? Set<IOHIDDevice> {
+                self.device = devices.first { IOHIDDeviceOpen($0, 0) == kIOReturnSuccess }
+            }
+        }
+    }
     func setActive(_ active: Bool) {
         timer?.schedule(
             deadline: .now(), repeating: .milliseconds(active ? 16 : 250),

@@ -35,6 +35,9 @@ final class OverlayWindow: NSPanel {
     private var handler: EventHandlerRef?
     private var generation = 0
     private var stopping = false
+    private var wantsEnabled = false
+    private var sleeping = false
+    private var reconnectTask: Task<Void, Never>?
     private var progress = 0.0
     private var protectedTop: Float = 0
     private var lastTime = CACurrentMediaTime()
@@ -65,22 +68,36 @@ final class OverlayWindow: NSPanel {
             guard let self else { return }
             if self.sensorAngle != angle { self.sensorAngle = angle }
             if angle == nil && self.enabled && self.followLid {
-                self.disable(message: "Lid sensor disconnected. Preview is still available.")
+                self.interrupt(message: "Waiting for the lid sensor…")
             }
         }
         sensor.start()
-        capture.onError = { [weak self] message in self?.disable(message: "Capture stopped: \(message)") }
+        capture.onError = { [weak self] message in self?.interrupt(message: "Capture interrupted: \(message)") }
         let center = NSWorkspace.shared.notificationCenter
         center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) {
             [weak self] _ in
-            MainActor.assumeIsolated { self?.disable(message: "Paused for sleep. Enable again when ready.") }
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.sleeping = true
+                self.interrupt(message: "Paused until your Mac wakes.")
+            }
+        }
+        center.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) {
+            [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.sleeping = false
+                self.sensorAngle = nil
+                self.sensor.reconnect()
+                self.scheduleReconnect()
+            }
         }
         NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                if self?.enabled == true || self?.starting == true {
-                    self?.disable(message: "Display configuration changed. Enable again to reconnect.")
+                if self?.wantsEnabled == true {
+                    self?.interrupt(message: "Reconnecting to your display…")
                 }
             }
         }
@@ -121,7 +138,8 @@ final class OverlayWindow: NSPanel {
         return p
     }
     func enable() {
-        guard !enabled, !starting, !stopping else { return }
+        guard !enabled, !starting, !stopping, !sleeping else { return }
+        wantsEnabled = true
         guard !followLid || sensorAngle != nil else {
             status = "No lid sensor found. Turn off Follow lid to use the manual angle."
             return
@@ -177,13 +195,44 @@ final class OverlayWindow: NSPanel {
             } catch {
                 guard generation == currentGeneration else { return }
                 await capture.stop()
+                guard generation == currentGeneration else { return }
                 starting = false
                 status =
                     "Screen capture could not start. Allow BendMac in System Settings → Privacy & Security → Screen & System Audio Recording, then try again. \(error.localizedDescription)"
             }
         }
     }
-    func disable(message: String = "Paused. Your desktop is back to normal.") {
+    private func interrupt(message: String) {
+        guard wantsEnabled else { return }
+        disable(message: message, preserveIntent: true)
+        scheduleReconnect()
+    }
+    private func scheduleReconnect() {
+        reconnectTask?.cancel()
+        guard wantsEnabled, !sleeping else { return }
+        reconnectTask = Task { [weak self] in
+            // Wake notifications can arrive before the display and HID device are ready.
+            for _ in 0..<15 {
+                do { try await Task.sleep(for: .seconds(1)) } catch { return }
+                guard let self, self.wantsEnabled, !self.sleeping else { return }
+                guard !self.stopping, !self.starting else { continue }
+                if self.followLid && self.sensorAngle == nil {
+                    self.sensor.reconnect()
+                    continue
+                }
+                guard NSScreen.screens.contains(where: {
+                    CGDisplayIsBuiltin(($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0) != 0
+                }) else { continue }
+                self.enable()
+                return
+            }
+            self?.status = "Could not reconnect. Try enabling BendMac again."
+        }
+    }
+    func disable(message: String = "Paused. Your desktop is back to normal.", preserveIntent: Bool = false) {
+        if !preserveIntent { wantsEnabled = false }
+        reconnectTask?.cancel()
+        reconnectTask = nil
         generation += 1
         enabled = false
         progress = 0
@@ -198,6 +247,7 @@ final class OverlayWindow: NSPanel {
             self.hotKey = nil
         }
         status = message
+        guard !stopping else { return }
         stopping = true
         Task {
             await capture.stop()
