@@ -3,13 +3,13 @@
     <channel>
         <title>BendMac</title>
         <item>
-            <title>0.4.3</title>
-            <pubDate>Thu, 10 Sep 2026 18:58:07 +0200</pubDate>
-            <sparkle:version>7</sparkle:version>
-            <sparkle:shortVersionString>0.4.3</sparkle:shortVersionString>
+            <title>0.4.4</title>
+            <pubDate>Thu, 10 Sep 2026 19:14:42 +0200</pubDate>
+            <sparkle:version>8</sparkle:version>
+            <sparkle:shortVersionString>0.4.4</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.3/BendMac-macOS.zip" length="2555202" type="application/octet-stream" sparkle:edSignature="WiNF3GFmHAwGX2d34C+Tl/PRlwVYBs9MLqKzi9hFur6OwDLgWB38ZSj3lzZleHjgq8otGNp1g93G0uJCVVD8AQ=="/>
+            <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.4/BendMac-macOS.zip" length="2555189" type="application/octet-stream" sparkle:edSignature="9PO9yF5YmYzKK4OV5WhLtdNmZVTWQ8wSAhUCKYMvhSigv3piCHqVhrJw490IUoDL25iR3oFoAYoFn3LieOOWBQ=="/>
         </item>
     </channel>
 </rss>
