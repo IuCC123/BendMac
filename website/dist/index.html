@@ -11,14 +11,15 @@
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/icon.png" type="image/png">
   <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="stars.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="nav">
     <nav class="nav-inner" aria-label="Main navigation">
       <a class="wordmark" href="#" aria-label="BendMac home"><img src="assets/icon.png" alt="" width="28" height="28">BendMac</a>
-      <div class="nav-links"><a href="#effect">The effect</a><a href="#open-source">Open source</a><a class="nav-download" href="https://github.com/IuCC123/BendMac/releases/latest">Download <span aria-hidden="true">↓</span></a></div>
+      <div class="nav-links"><a href="#effect">The effect</a><a href="#open-source">Open source</a><a class="nav-download" href="https://github.com/IuCC123/BendMac/releases/latest">Download <span aria-hidden="true">↓</span></a><a class="github-stars" id="github-stars" href="https://github.com/IuCC123/BendMac" aria-label="Star BendMac on GitHub"><svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 14.8 8.7 21 9.6 16.5 14 17.6 20.2 12 17.3 6.4 20.2 7.5 14 3 9.6 9.2 8.7Z"/></svg><span>Star</span><span id="star-count" class="star-count" hidden></span></a></div>
     </nav>
   </header>
   <main id="main">
@@ -35,7 +36,7 @@
           <source src="assets/bend-preview.mp4" type="video/mp4">
           <p>Your browser cannot play this video. <a href="assets/bend-preview.mp4">Download the animation preview.</a></p>
         </video>
-        <button id="play" class="replay" type="button" aria-label="Play fold animation"><span id="play-icon" aria-hidden="true">▶</span><span id="play-label">Play the fold</span></button>
+        <button id="play" class="replay" type="button" aria-label="Play fold animation"><svg id="play-icon" class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5 19 12 8 19Z"/></svg><span id="play-label">Play the fold</span></button>
       </div>
       <div class="demo-controls">
         <label for="lid">Try the fold</label>
@@ -63,10 +64,10 @@
     <section class="getting-started section-width" aria-labelledby="start-title">
       <h2 id="start-title">A few things to know.</h2>
       <div class="questions">
-        <details><summary>Will it work on my Mac?<span aria-hidden="true">+</span></summary><p>BendMac needs macOS 14 Sonoma or later and an Apple silicon MacBook with a lid-angle sensor. The current build has been tested on an M5 MacBook Air. The preview works without a sensor. External displays stay unchanged.</p></details>
-        <details><summary>How do I get started?<span aria-hidden="true">+</span></summary><p>Download the latest release, unzip it, and move BendMac to Applications. Open General and enable the desktop effect. Grant Screen Recording permission when macOS asks. The app appears in your menu bar.</p><p>This early release is not Developer ID signed or notarized. You can inspect the source and build it in Xcode yourself. If you use the download, macOS may require you to approve it in Privacy & Security.</p></details>
-        <details><summary>Why does it need Screen Recording?<span aria-hidden="true">+</span></summary><p>The effect uses a live image of your desktop so your wallpaper and windows blur together. Despite the permission’s name, BendMac does not save a recording. It does not capture audio or send screen content anywhere.</p></details>
-        <details><summary>Can I change the effect?<span aria-hidden="true">+</span></summary><p>Yes. Choose Silk, Shade, or Frost, then adjust perspective, blur, and shadow. Set the lid angle at which your desktop becomes clear. You can also try the animation with a slider in the app.</p></details>
+        <details><summary>Will it work on my Mac?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>BendMac needs macOS 14 Sonoma or later and an Apple silicon MacBook with a lid-angle sensor. The current build has been tested on an M5 MacBook Air. The preview works without a sensor. External displays stay unchanged.</p></details>
+        <details><summary>How do I get started?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>Download the latest release, unzip it, and move BendMac to Applications. Open General and enable the desktop effect. Grant Screen Recording permission when macOS asks. The app appears in your menu bar.</p><p>This early release is not Developer ID signed or notarized. You can inspect the source and build it in Xcode yourself. If you use the download, macOS may require you to approve it in Privacy & Security.</p></details>
+        <details><summary>Why does it need Screen Recording?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>The effect uses a live image of your desktop so your wallpaper and windows blur together. Despite the permission’s name, BendMac does not save a recording. It does not capture audio or send screen content anywhere.</p></details>
+        <details><summary>Can I change the effect?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>Yes. Choose Silk, Shade, or Frost, then adjust perspective, blur, and shadow. Set the lid angle at which your desktop becomes clear. You can also try the animation with a slider in the app.</p></details>
       </div>
     </section>
     <section class="credit section-width" aria-label="Inspiration">

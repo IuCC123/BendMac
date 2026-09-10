@@ -1,14 +1,26 @@
+import { createMorph } from "./vendor/morphicons/dom.js";
+
+const playPath = "M8 5 19 12 8 19Z";
+const pausePath = "M8 5V19M16 5V19";
+const playMorph = createMorph(document.querySelector("#play-icon path"), playPath, { reducedMotion: "user" });
+
+document.querySelectorAll(".questions details").forEach(details => {
+  const plus = "M5 12H19M12 5V19";
+  const minus = "M5 12H19";
+  const morph = createMorph(details.querySelector("summary path"), details.open ? minus : plus, { reducedMotion: "user" });
+  details.addEventListener("toggle", () => morph.morphTo(details.open ? minus : plus, "snappy"));
+});
+
 (() => {
   const video = document.getElementById('preview');
   const slider = document.getElementById('lid');
   const button = document.getElementById('play');
   const label = document.getElementById('play-label');
-  const icon = document.getElementById('play-icon');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let scrubbing = false;
   function state(playing) {
     label.textContent = playing ? 'Pause' : 'Play the fold';
-    icon.textContent = playing ? 'Ⅱ' : '▶';
+    playMorph.morphTo(playing ? pausePath : playPath, 'snappy');
     button.setAttribute('aria-label', playing ? 'Pause fold animation' : 'Play fold animation');
   }
   function updateSlider() {
