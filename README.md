@@ -1,8 +1,8 @@
 # BendMac
 
-[![BendMac folding and blurring the desktop as the lid closes](docs/demo.gif)](https://bendmac.iucc123.chatgpt.site/assets/bend-preview.mp4)
+[![BendMac folding and blurring the desktop as the lid closes](docs/demo.gif)](https://bendmac.app/assets/bend-preview.mp4)
 
-[Watch the full demo](https://bendmac.iucc123.chatgpt.site/assets/bend-preview.mp4) · [Download for Mac](https://github.com/IuCC123/BendMac/releases/latest)
+[Website](https://bendmac.app) · [Watch the full demo](https://bendmac.app/assets/bend-preview.mp4) · [Download for Mac](https://github.com/IuCC123/BendMac/releases/latest)
 
 BendMac makes your desktop bend and blur as you close your MacBook. Open the lid and it settles back into place. It's free, open source, and lives in the menu bar.
 
