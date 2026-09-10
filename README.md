@@ -1,80 +1,61 @@
 # BendMac
 
-A softer side of your Mac. A free, open-source desktop effect that gently blurs as you close your MacBook lid.
+[![BendMac folding and blurring the desktop as the lid closes](docs/demo.gif)](https://bendmac.iucc123.chatgpt.site/assets/bend-preview.mp4)
 
-Inspired by [Bendy](https://trybendy.app/) and the folding-screen animation that inspired it. BendMac is an independent implementation, not affiliated with Bendy or Apple.
+[Watch the full demo](https://bendmac.iucc123.chatgpt.site/assets/bend-preview.mp4) · [Download for Mac](https://github.com/IuCC123/BendMac/releases/latest)
 
-[Download for Mac](https://github.com/IuCC123/BendMac/releases/latest) · [Contribute](CONTRIBUTING.md) · [Report an issue](https://github.com/IuCC123/BendMac/issues)
+BendMac makes your desktop bend and blur as you close your MacBook. Open the lid and it settles back into place. It's free, open source, and lives in the menu bar.
 
-## The effect
+Inspired by [Bendy](https://trybendy.app/) and the iPhone Duo folding animation. This is an independent implementation, with no affiliation to Bendy or Apple.
 
-The desktop lifts toward the top while its upper sides draw inward and soften. A progressive Gaussian blur gathers near the top. The bottom remains sharp and anchored. Opening the lid clears the effect smoothly. Choose Silk, Shade, or Frost and adjust the perspective, blur, shadow, and clear angle.
+## Getting started
 
-The warp keeps the top filled and eases back to an unchanged bottom edge, so the Dock is not stretched with the rest of the image. Escape pauses the effect while it is visible. Closing Settings leaves the app in the menu bar.
+You'll need macOS 14 or later and an Apple silicon MacBook with a lid-angle sensor. So far, it's been tested on an M5 MacBook Air. Reports from other models are welcome.
 
-## Requirements
+1. Download the latest release, unzip it, and move BendMac to Applications.
+2. Open BendMac and choose **General → Enable desktop effect**.
+3. Allow it in **System Settings → Privacy & Security → Screen & System Audio Recording**. Relaunch if macOS asks you to.
 
-- macOS 14 Sonoma or later.
-- Apple silicon MacBook with a lid-angle sensor. Tested on an M5 MacBook Air. Other models need community testing.
-- Screen Recording permission for the live desktop effect. The preview works without it.
+The current release is signed ad hoc and isn't notarized, so macOS may ask you to approve it in Privacy & Security. You can also build it yourself.
 
-Only the built-in screen bends. External displays are unchanged. Sleep and display changes pause the effect.
+Settings has a preview you can try without screen recording permission. You can adjust the blur, perspective, shadow, and angle at which the effect clears. Press Escape while the effect is visible to pause it. Closing Settings leaves BendMac running; quit from its menu-bar menu.
 
-## Install
+Only the built-in display is affected. BendMac pauses for sleep or display changes and doesn't add itself to your login items.
 
-1. Download and unzip the latest release.
-2. Move BendMac to Applications and open it.
-3. Choose **General → Enable desktop effect**.
-4. Allow BendMac in **System Settings → Privacy & Security → Screen & System Audio Recording**. Relaunch if macOS requests it.
+## Privacy
 
-This early release is signed ad hoc, not Developer ID signed or notarized. macOS may require approval in Privacy & Security. You can also inspect and build the source yourself.
+ScreenCaptureKit supplies the desktop frames for the effect. They stay in memory: BendMac doesn't save recordings, capture audio, or upload screen content. Its own windows are excluded from capture so the effect doesn't feed back into itself.
 
-No login item is installed. Quit from the BendMac menu-bar menu to stop the app.
+## Building
 
-## Build
+Open `BendMac.xcodeproj` in Xcode, select the BendMac scheme and My Mac, then run it. You'll need Apple's Metal compiler component; Xcode can prompt you to install it.
 
-Open `BendMac.xcodeproj` in Xcode, choose the BendMac scheme and My Mac, then Run. The project requires Apple's Metal compiler component. Xcode may offer to install it, or use `xcodebuild -downloadComponent MetalToolchain` if supported by your Xcode version.
-
-To regenerate the project, install XcodeGen and run:
+If you have XcodeGen installed, you can regenerate the project and build from the terminal:
 
 ```sh
 ./scripts/build.sh
 ```
 
-Output: `build/Build/Products/Release/BendMac.app`.
+The app will be in `build/Build/Products/Release/BendMac.app`.
 
-## How it works
-
-- SwiftUI settings and AppKit menu-bar/window lifecycle.
-- ScreenCaptureKit captures the built-in desktop while excluding BendMac, preventing recursive capture. Audio capture is disabled.
-- Metal applies a height-preserving warp, upward content displacement, and feathered side insets. The native menu bar stays clear.
-- Metal Performance Shaders creates 4 / 10 / 28 / 64 px Gaussian bands at an 880 px reference width. The blur grows toward the top.
-- IOKit reads the lid-angle HID feature report without root, a driver, or Accessibility permission. The transport API is public, but Apple's report format is undocumented and may change.
-- Sensor reads run at 60 Hz while enabled and 4 Hz while paused. Capture requests 5 fps while flat and 60 fps while bending. The overlay stops rendering when flat.
-- Carbon registers Escape only while the effect is visible.
-
-Frames remain in memory. BendMac does not save recordings or upload screen content. The overlay passes pointer input through to the desktop without remapping coordinates.
-
-## Verify
+After building, run the checks with:
 
 ```sh
 ./scripts/verify.sh
 ```
 
-This checks lid thresholds, monotonic progress, refresh-rate-independent smoothing, and reversal; verifies signing; reads the sensor; and renders a fold/unfold sequence through the compiled Metal pipeline. FFmpeg is optional for producing the preview video.
+This tests the motion math, checks the app signature, reads the lid sensor, and renders a preview through Metal. FFmpeg is optional if you also want a preview video. These checks don't replace testing with a real lid.
 
-The app also supports `--smoke` for a three-second live capture test. It requires Screen Recording permission, applies a manual 42° angle, writes frame-count/overlay/sensor diagnostics to `/tmp/bendmac-smoke.txt`, then pauses. It saves no screen images.
+## Working on it
 
-## Website
+The app uses SwiftUI for settings, AppKit for the menu bar and overlay, and Metal for the effect. IOKit reads the lid sensor through an undocumented HID report, so support may vary between hardware and macOS versions.
 
-The landing page source is in `website/dist`. It uses HTML, CSS, and a small JavaScript controller for the video preview. No build step or third-party runtime is needed.
+Bug fixes, animation tweaks, and hardware reports are all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started, or [open an issue](https://github.com/IuCC123/BendMac/issues) if something isn't working.
+
+The landing page lives in `website/dist` and needs no build step. To run it locally:
 
 ```sh
 python3 -m http.server 4873 --directory website/dist
 ```
 
-## Contributing and license
-
-Bug reports, hardware compatibility reports, animation improvements, and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-Released under the [MIT license](LICENSE). Please retain attribution to Bendy when describing the inspiration. The reference videos and Bendy's assets are not included in this repository.
+BendMac is released under the [MIT license](LICENSE). Bendy's assets and the reference videos aren't included in this repository.

@@ -10,7 +10,7 @@ Open an issue with your MacBook model, macOS version, BendMac version, and steps
 
 1. Fork the repository and create a branch.
 2. Open `BendMac.xcodeproj` in Xcode or use `scripts/build.sh`.
-3. Keep the change focused and explain the behavior it improves.
+3. Keep the change focused and explain what it fixes. Format Swift files with `xcrun swift-format format --in-place --recursive BendMac Tests scripts`.
 4. Run `scripts/verify.sh` for animation or sensor changes. Test on a real Mac when possible and say what you could not verify.
 5. Open a pull request with the relevant validation results.
 

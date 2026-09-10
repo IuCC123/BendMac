@@ -11,7 +11,9 @@ final class LidSensor {
     var onAngle: ((Double?) -> Void)?
 
     init() {
-        let match: [String: Any] = [kIOHIDVendorIDKey: 0x05AC, kIOHIDPrimaryUsagePageKey: 0x20, kIOHIDPrimaryUsageKey: 0x8A]
+        let match: [String: Any] = [
+            kIOHIDVendorIDKey: 0x05AC, kIOHIDPrimaryUsagePageKey: 0x20, kIOHIDPrimaryUsageKey: 0x8A,
+        ]
         IOHIDManagerSetDeviceMatching(manager, match as CFDictionary)
         IOHIDManagerOpen(manager, 0)
         if let devices = IOHIDManagerCopyDevices(manager) as? Set<IOHIDDevice> {
@@ -22,7 +24,9 @@ final class LidSensor {
         guard let device else { return nil }
         var bytes = [UInt8](repeating: 0, count: 8)
         var count = bytes.count
-        guard IOHIDDeviceGetReport(device, kIOHIDReportTypeFeature, 1, &bytes, &count) == kIOReturnSuccess, count >= 3 else { return nil }
+        guard IOHIDDeviceGetReport(device, kIOHIDReportTypeFeature, 1, &bytes, &count) == kIOReturnSuccess,
+            count >= 3
+        else { return nil }
         let value = Int(bytes[1]) | Int(bytes[2]) << 8
         guard (0...180).contains(value) else { return nil }
         return Double(value)
@@ -40,7 +44,9 @@ final class LidSensor {
         timer.resume()
     }
     func setActive(_ active: Bool) {
-        timer?.schedule(deadline:.now(),repeating:.milliseconds(active ? 16 : 250),leeway:.milliseconds(active ? 2 : 10))
+        timer?.schedule(
+            deadline: .now(), repeating: .milliseconds(active ? 16 : 250),
+            leeway: .milliseconds(active ? 2 : 10))
     }
     deinit {
         timer?.cancel()
