@@ -37,4 +37,4 @@ Versions before 0.4.0 don't contain an updater. Those users need to download an 
 
 ## Drag-to-install download
 
-Run `./scripts/dmg.sh` after building to create `build/BendMac-macOS.dmg`. It generates the Retina background and Finder layout without opening Finder. Upload the DMG alongside the ZIP. Keep the signed ZIP for Sparkle updates.
+Run `./scripts/dmg.sh` after building to create `build/BendMac-macOS.dmg`. It generates the Retina background and Finder layout without opening Finder. Upload the DMG alongside the ZIP and keep the filename `BendMac-macOS.dmg` on every release. The website uses GitHub’s `/releases/latest/download/BendMac-macOS.dmg` redirect, so the buttons follow the latest stable release without a website update. Publish each release only after both assets are uploaded. Keep the signed ZIP for Sparkle updates.

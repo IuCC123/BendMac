@@ -1,65 +1,51 @@
 # BendMac
 
-[![BendMac folding and blurring the desktop as the lid closes](docs/demo.gif)](https://bendmac.app/assets/bend-preview.mp4)
+[![BendMac demo](docs/demo.gif)](https://bendmac.app/assets/bend-preview.mp4)
 
-[Website](https://bendmac.app) · [Watch the full demo](https://bendmac.app/assets/bend-preview.mp4) · [Download for Mac](https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg)
+[Download for Mac](https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg) · [Website](https://bendmac.app) · [Full demo](https://bendmac.app/assets/bend-preview.mp4)
 
-BendMac makes your desktop bend and blur as you close your MacBook. Open the lid and it settles back into place. It's free, open source, and lives in the menu bar.
+Your desktop bends and blurs as you close your MacBook lid. BendMac runs in the menu bar and is free and open source.
 
-Inspired by [Bendy](https://trybendy.app/) and the iPhone Duo folding animation. This is an independent implementation, with no affiliation to Bendy or Apple.
+Inspired by [Bendy](https://trybendy.app/) and the iPhone Duo folding animation. No affiliation with Bendy or Apple.
 
-## Getting started
+## Install
 
-You'll need macOS 14 or later and an Apple silicon MacBook with a lid-angle sensor. So far, it's been tested on an M5 MacBook Air. Reports from other models are welcome.
+Requires **macOS 14+** and an **Apple silicon MacBook with a lid-angle sensor**. Tested hardware so far: M5 MacBook Air. If you try another model, please [let us know](https://github.com/IuCC123/BendMac/issues).
 
-1. Download and open the DMG, then drag BendMac onto the Applications folder.
-2. Open BendMac and choose **General → Enable desktop effect**.
-3. Allow it in **System Settings → Privacy & Security → Screen & System Audio Recording**. Relaunch if macOS asks you to.
+1. Open the DMG and drag BendMac into Applications.
+2. Open BendMac and turn on **General → Enable BendMac**.
+3. Grant access in **System Settings → Privacy & Security → Screen & System Audio Recording**.
 
-The current release is signed ad hoc and isn't notarized, so macOS may ask you to approve it in Privacy & Security. You can also build it yourself.
+BendMac isn't notarized yet. You may need to approve it in Privacy & Security the first time you open it.
 
-Settings has a preview you can try without screen recording permission. You can adjust the blur, perspective, shadow, and angle at which the effect clears. Press Escape while the effect is visible to pause it. Closing Settings leaves BendMac running; quit from its menu-bar menu.
+## Using it
 
-Only the built-in display is affected. BendMac pauses for sleep or display changes and doesn't add itself to your login items.
+Adjust the style, blur, perspective, and shadow in Appearance. The preview works without Screen Recording permission. Lid Behavior lets you change the angle at which the effect clears or control it manually.
 
-## Updates
+Press **Escape** to pause the effect. Close the settings window to leave BendMac running, or quit from the menu bar. Only the built-in display is affected.
 
-From version 0.4.0, BendMac can download and install updates in the app. Use **Check for updates** in the sidebar or menu bar. Sparkle verifies each update before installing it. If you have an older version, download the new app manually once.
+Use **Check for updates** to install future versions in the app. If you're on 0.4.0 or earlier, download the current version manually first.
 
-## Privacy
+Screen frames stay in memory. Nothing is recorded to disk or uploaded, and audio isn't captured. Update checks contact GitHub to look for new releases.
 
-ScreenCaptureKit supplies the desktop frames for the effect. They stay in memory: BendMac doesn't save recordings, capture audio, or upload screen content. Its own windows are excluded from capture so the effect doesn't feed back into itself.
+## Build from source
 
-## Building
+Open `BendMac.xcodeproj` in Xcode and run the BendMac scheme. Xcode will download Sparkle; install the Metal compiler component if prompted.
 
-Open `BendMac.xcodeproj` in Xcode, select the BendMac scheme and My Mac, then run it. You'll need Apple's Metal compiler component; Xcode can prompt you to install it.
-
-If you have XcodeGen installed, you can regenerate the project and build from the terminal:
+With XcodeGen installed:
 
 ```sh
 ./scripts/build.sh
 ```
 
-The app will be in `build/Build/Products/Release/BendMac.app`.
+The app is written to `build/Build/Products/Release/BendMac.app`. Run `./scripts/dmg.sh` to package a DMG.
 
-After building, run the checks with:
+`./scripts/verify.sh` checks the motion math, signature, sensor, and Metal rendering. It needs a Mac; FFmpeg is optional for exporting the preview video.
 
-```sh
-./scripts/verify.sh
-```
+## Contributing
 
-This tests the motion math, checks the app signature, reads the lid sensor, and renders a preview through Metal. FFmpeg is optional if you also want a preview video. These checks don't replace testing with a real lid.
+[Issues](https://github.com/IuCC123/BendMac/issues) and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and [release instructions](docs/releases.md) for packaging and update signing.
 
-## Working on it
+The app uses SwiftUI, AppKit, ScreenCaptureKit, and Metal. The lid sensor's HID report is undocumented, so compatibility can vary. Website source is in `website/dist`.
 
-The app uses SwiftUI for settings, AppKit for the menu bar and overlay, and Metal for the effect. IOKit reads the lid sensor through an undocumented HID report, so support may vary between hardware and macOS versions.
-
-Bug fixes, animation tweaks, and hardware reports are all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started, or [open an issue](https://github.com/IuCC123/BendMac/issues) if something isn't working.
-
-The landing page lives in `website/dist` and needs no build step. To run it locally:
-
-```sh
-python3 -m http.server 4873 --directory website/dist
-```
-
-BendMac is released under the [MIT license](LICENSE). Bendy's assets and the reference videos aren't included in this repository.
+[MIT license](LICENSE). Reference videos and Bendy's assets aren't included.
