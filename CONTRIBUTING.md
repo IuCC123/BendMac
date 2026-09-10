@@ -16,7 +16,7 @@ Open an issue with your MacBook model, macOS version, BendMac version, and steps
 
 ## Design and implementation
 
-The effect should feel restrained. The physical hinge supplies most of the rotation; software adds progressive blur, a small amount of perspective, and subtle shading. Keep the bottom edge anchored and the animation reversible.
+The effect should feel restrained. The physical hinge supplies the rotation; software lifts the content, draws the upper sides inward, and adds progressive blur and subtle shading. Keep the bottom edge anchored and the animation reversible.
 
 Use native macOS frameworks. Do not introduce screen-content uploads, persistent recordings, root requirements, or Accessibility-based automation. Changes to sensor access need clear hardware/OS compatibility notes because the HID report is undocumented.
 

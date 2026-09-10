@@ -8,9 +8,9 @@ Inspired by [Bendy](https://trybendy.app/) and the folding-screen animation that
 
 ## The effect
 
-The desktop stays nearly flat while a progressive Gaussian blur gathers near the top. The bottom remains sharp and anchored. Opening the lid clears the effect smoothly. Choose Silk, Shade, or Frost and adjust the perspective, blur, shadow, and clear angle.
+The desktop lifts toward the top while its upper sides draw inward and soften. A progressive Gaussian blur gathers near the top. The bottom remains sharp and anchored. Opening the lid clears the effect smoothly. Choose Silk, Shade, or Frost and adjust the perspective, blur, shadow, and clear angle.
 
-The software tilt is capped at 12°, with 7.8° at the default setting. The physical lid supplies the rest of the movement. Escape pauses the effect while it is visible. Closing Settings leaves the app in the menu bar.
+The warp keeps the top filled and eases back to an unchanged bottom edge, so the Dock is not stretched with the rest of the image. Escape pauses the effect while it is visible. Closing Settings leaves the app in the menu bar.
 
 ## Requirements
 
@@ -47,8 +47,8 @@ Output: `build/Build/Products/Release/BendMac.app`.
 
 - SwiftUI settings and AppKit menu-bar/window lifecycle.
 - ScreenCaptureKit captures the built-in desktop while excluding BendMac, preventing recursive capture. Audio capture is disabled.
-- Metal applies a restrained bottom-anchored perspective transform.
-- Metal Performance Shaders creates 10 / 28 / 64 px Gaussian bands at an 880 px reference width. The blur grows toward the top.
+- Metal applies a height-preserving warp, upward content displacement, and feathered side insets. The native menu bar stays clear.
+- Metal Performance Shaders creates 4 / 10 / 28 / 64 px Gaussian bands at an 880 px reference width. The blur grows toward the top.
 - IOKit reads the lid-angle HID feature report without root, a driver, or Accessibility permission. The transport API is public, but Apple's report format is undocumented and may change.
 - Sensor reads run at 60 Hz while enabled and 4 Hz while paused. Capture requests 5 fps while flat and 60 fps while bending. The overlay stops rendering when flat.
 - Carbon registers Escape only while the effect is visible.

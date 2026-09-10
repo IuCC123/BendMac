@@ -5,12 +5,12 @@ import CoreVideo
 
 struct BendParameters {
     var progress: Float = 0
-    var perspective: Float = 0.65
+    var perspective: Float = 1
     var blur: Float = 0.9
     var shadow: Float = 0.35
     var aspect: Float = 1.6
     var style: Float = 0
-    var pad1: Float = 0
+    var protectedTop: Float = 0
     var pad2: Float = 0
 }
 
@@ -35,7 +35,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
     var parameters: @MainActor () -> BendParameters = { BendParameters() }
     var onDraw: (() -> Void)?
 
-    init(frames: FrameStore) throws {
+    init(frames: FrameStore, preview: CGImage? = nil) throws {
         guard let device = MTLCreateSystemDefaultDevice(), let queue = device.makeCommandQueue(),
               let library = device.makeDefaultLibrary() else { throw NSError(domain: "Metal unavailable", code: 1) }
         self.device = device; self.queue = queue; self.frames = frames
@@ -44,7 +44,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         descriptor.fragmentFunction = library.makeFunction(name: "bendFragment")
         descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
         pipeline = try device.makeRenderPipelineState(descriptor: descriptor)
-        let cg = Self.previewImage()
+        let cg = preview ?? Self.previewImage()
         let td = MTLTextureDescriptor.texture2DDescriptor(pixelFormat:.rgba8Unorm,width:cg.width,height:cg.height,mipmapped:false)
         guard let texture = device.makeTexture(descriptor:td) else { throw NSError(domain:"Preview texture allocation failed",code:2) }
         var pixels = [UInt8](repeating:0,count:cg.width*cg.height*4)
@@ -94,17 +94,17 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         onDraw?()
     }
     private func encodeBlur(_ source: MTLTexture, command: MTLCommandBuffer, strength: Float) -> [MTLTexture] {
-        if strength < 0.001 { return [source,source,source] }
+        if strength < 0.001 { return [source,source,source,source] }
         let w=max(1,source.width/4), h=max(1,source.height/4)
         if blurTextures.first?.width != w || blurTextures.first?.height != h {
             let descriptor=MTLTextureDescriptor.texture2DDescriptor(pixelFormat:.rgba8Unorm,width:w,height:h,mipmapped:false)
             descriptor.usage=[.shaderRead,.shaderWrite]; descriptor.storageMode = .private
-            blurTextures=(0..<4).compactMap { _ in device.makeTexture(descriptor:descriptor) }
+            blurTextures=(0..<5).compactMap { _ in device.makeTexture(descriptor:descriptor) }
             blurStrength = -1
         }
-        guard blurTextures.count == 4 else { return [source,source,source] }
+        guard blurTextures.count == 5 else { return [source,source,source,source] }
         if abs(blurStrength-strength) > 0.001 {
-            blurKernels=[10.0,28.0,64.0].map {
+            blurKernels=[4.0,10.0,28.0,64.0].map {
                 let kernel=MPSImageGaussianBlur(device:device,sigma:Float($0)*Float(w)/880*strength/0.9)
                 kernel.edgeMode = .clamp
                 return kernel
@@ -112,7 +112,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
             blurStrength=strength
         }
         MPSImageBilinearScale(device:device).encode(commandBuffer:command,sourceTexture:source,destinationTexture:blurTextures[0])
-        for i in 0..<3 { blurKernels[i].encode(commandBuffer:command,sourceTexture:blurTextures[0],destinationTexture:blurTextures[i+1]) }
+        for i in 0..<4 { blurKernels[i].encode(commandBuffer:command,sourceTexture:blurTextures[0],destinationTexture:blurTextures[i+1]) }
         return Array(blurTextures.dropFirst())
     }
     /// Offline QA uses the very same compiled GPU pipeline and preview texture.

@@ -81,7 +81,7 @@ struct SettingsView: View {
             Image(systemName:"info.circle").foregroundStyle(.secondary)
             Text("The preview uses the same Metal effect as your desktop.").font(.caption).foregroundStyle(.secondary)
             Spacer()
-            Button("Reset") { model.perspective=0.65; model.blur=0.9; model.shadow=0.35; model.style=0; model.clearAngle=105 }
+            Button("Reset") { model.perspective=1; model.blur=0.9; model.shadow=0.35; model.style=0; model.clearAngle=105 }
         }
     }
     private func styleCard(_ name:String,index:Int,description:String,icon:String) -> some View {

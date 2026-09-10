@@ -51,7 +51,12 @@ if let index=CommandLine.arguments.firstIndex(of:"--render-proof"), CommandLine.
     let folder=URL(fileURLWithPath:CommandLine.arguments[index+1])
     do {
         try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
-        let renderer=try BendRenderer(frames:FrameStore())
+        var reference: CGImage?
+        if let ref=CommandLine.arguments.firstIndex(of:"--reference-image"),CommandLine.arguments.count>ref+1 {
+            reference=NSImage(contentsOfFile:CommandLine.arguments[ref+1])?.cgImage(forProposedRect:nil,context:nil,hints:nil)
+            guard reference != nil else { throw NSError(domain:"Reference image could not be read",code:1) }
+        }
+        let renderer=try BendRenderer(frames:FrameStore(),preview:reference)
         for frame in 0...126 {
             var p=BendParameters()
             let angle=105-87*pow(sin(Double(frame)/126 * .pi),2)

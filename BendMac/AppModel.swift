@@ -18,7 +18,7 @@ final class OverlayWindow: NSPanel {
     @Published var previewAngle = 70.0
     @Published var previewPlaying = false
     @Published var style = 0 { didSet { save() } }
-    @Published var perspective = 0.65 { didSet { save() } }
+    @Published var perspective = 1.0 { didSet { save() } }
     @Published var blur = 0.9 { didSet { save() } }
     @Published var shadow = 0.35 { didSet { save() } }
     @Published var clearAngle = 105.0 { didSet { save() } }
@@ -36,6 +36,7 @@ final class OverlayWindow: NSPanel {
     private var generation = 0
     private var stopping = false
     private var progress = 0.0
+    private var protectedTop: Float = 0
     private var lastTime = CACurrentMediaTime()
     private var playStart = 0.0
     private var wasFolded = false
@@ -44,13 +45,13 @@ final class OverlayWindow: NSPanel {
     init() {
         let d = UserDefaults.standard
         // Upgrade untouched v1 settings to the softer motion profile.
-        if d.integer(forKey:"motionProfileVersion") < 2 {
-            for (key,old,new) in [("perspective",1.0,0.65),("blur",0.65,0.9),("shadow",0.65,0.35)] {
+        if d.integer(forKey:"motionProfileVersion") < 3 {
+            for (key,old,new) in [("perspective",0.65,1.0),("blur",0.65,0.9),("shadow",0.65,0.35)] {
                 if let value=d.object(forKey:key) as? Double, abs(value-old)<0.0001 { d.set(new,forKey:key) }
             }
-            d.set(2,forKey:"motionProfileVersion")
+            d.set(3,forKey:"motionProfileVersion")
         }
-        d.register(defaults:["style":0,"perspective":0.65,"blur":0.9,"shadow":0.35,"clearAngle":105.0,"sound":false])
+        d.register(defaults:["style":0,"perspective":1.0,"blur":0.9,"shadow":0.35,"clearAngle":105.0,"sound":false])
         style=d.integer(forKey:"style"); perspective=d.double(forKey:"perspective"); blur=d.double(forKey:"blur"); shadow=d.double(forKey:"shadow"); clearAngle=d.double(forKey:"clearAngle"); sound=d.bool(forKey:"sound")
         sensor.onAngle = { [weak self] angle in
             guard let self else { return }
@@ -84,6 +85,7 @@ final class OverlayWindow: NSPanel {
         var p = BendParameters()
         p.progress = Float(preview ? BendMath.progress(angle:previewAngle,clearAngle:clearAngle) : progress)
         p.perspective=Float(perspective); p.blur=Float(blur); p.shadow=Float(shadow); p.style=Float(style)
+        p.protectedTop = preview ? 0 : protectedTop
         return p
     }
     func enable() {
@@ -91,6 +93,7 @@ final class OverlayWindow: NSPanel {
         guard !followLid || sensorAngle != nil else { status="No lid sensor found. Turn off Follow lid to use the manual angle."; return }
         guard let screen = NSScreen.screens.first(where:{ CGDisplayIsBuiltin(($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0) != 0 }),
               let displayID = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value else { status="Connect the built-in display to use the desktop effect."; return }
+        protectedTop=Float((screen.frame.maxY-screen.visibleFrame.maxY)/screen.frame.height)
         starting=true; status="Connecting to your desktop…"; generation += 1
         let currentGeneration = generation
         Task {
@@ -100,7 +103,7 @@ final class OverlayWindow: NSPanel {
                 let renderer = try BendRenderer(frames:frames)
                 renderer.parameters = { [weak self] in self?.parameters() ?? BendParameters() }
                 let window = OverlayWindow(contentRect:screen.frame,styleMask:[.borderless,.nonactivatingPanel],backing:.buffered,defer:false)
-                window.level = NSWindow.Level(rawValue:NSWindow.Level.screenSaver.rawValue-1)
+                window.level = NSWindow.Level(rawValue:NSWindow.Level.statusBar.rawValue-1)
                 window.isOpaque=true; window.backgroundColor = .black; window.hasShadow=false
                 window.ignoresMouseEvents=true; window.hidesOnDeactivate=false
                 window.collectionBehavior=[.canJoinAllSpaces,.fullScreenAuxiliary,.stationary,.ignoresCycle]
