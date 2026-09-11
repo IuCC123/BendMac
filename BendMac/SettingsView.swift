@@ -356,7 +356,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Toggle(
                         isOn: Binding(
-                            get: { model.enabled },
+                            get: { model.wantsEnabled },
                             set: { enabled in
                                 if enabled { model.enable() } else { model.disable() }
                             })
@@ -365,7 +365,14 @@ struct SettingsView: View {
                             title: model.starting ? "Connecting…" : "Enable BendMac",
                             detail: "Let your desktop follow the lid.")
                     }
-                    .toggleStyle(.switch).controlSize(.small).disabled(model.starting).padding(14)
+                    .toggleStyle(.switch).controlSize(.small).padding(14)
+                    rowDivider
+                    Toggle(isOn: Binding(get: { model.openAtLogin }, set: model.setOpenAtLogin)) {
+                        SettingCaption(
+                            title: "Open at login",
+                            detail: "Start in the menu bar and restore the effect if it was on.")
+                    }
+                    .toggleStyle(.switch).controlSize(.small).padding(14)
                     rowDivider
                     Text(model.status).font(.system(size: 12)).foregroundStyle(.secondary)
                         .textSelection(.enabled).padding(14)

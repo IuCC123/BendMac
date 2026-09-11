@@ -1,6 +1,7 @@
 import AppKit
 import Carbon
 import MetalKit
+import ServiceManagement
 import SwiftUI
 
 final class OverlayWindow: NSPanel {
@@ -23,6 +24,7 @@ final class OverlayWindow: NSPanel {
     @Published var shadow = 0.35 { didSet { save() } }
     @Published var clearAngle = 105.0 { didSet { save() } }
     @Published var sound = false { didSet { save() } }
+    @Published private(set) var openAtLogin = SMAppService.mainApp.status == .enabled
     let frames = FrameStore()
     let previewFrames = FrameStore()
     let sensor = LidSensor()
@@ -35,7 +37,9 @@ final class OverlayWindow: NSPanel {
     private var handler: EventHandlerRef?
     private var generation = 0
     private var stopping = false
-    private var wantsEnabled = false
+    @Published private(set) var wantsEnabled = false {
+        didSet { UserDefaults.standard.set(wantsEnabled, forKey: "enabled") }
+    }
     private var sleeping = false
     private var reconnectTask: Task<Void, Never>?
     private var progress = 0.0
@@ -101,11 +105,9 @@ final class OverlayWindow: NSPanel {
                 }
             }
         }
-        let timer = Timer(timeInterval: 1 / 60.0, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.tick() }
-        }
-        self.timer = timer
-        RunLoop.main.add(timer, forMode: .common)
+        // Restore the effect after a relaunch, login, or update once the sensor reports.
+        wantsEnabled = defaults.bool(forKey: "enabled")
+        scheduleReconnect()
         var spec = EventTypeSpec(
             eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         InstallEventHandler(
@@ -125,6 +127,18 @@ final class OverlayWindow: NSPanel {
         defaults.set(shadow, forKey: "shadow")
         defaults.set(clearAngle, forKey: "clearAngle")
         defaults.set(sound, forKey: "sound")
+    }
+    func setOpenAtLogin(_ on: Bool) {
+        do {
+            if on { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
+        } catch {
+            status = "Could not change Open at login: \(error.localizedDescription)"
+        }
+        if SMAppService.mainApp.status == .requiresApproval { SMAppService.openSystemSettingsLoginItems() }
+        refreshOpenAtLogin()
+    }
+    func refreshOpenAtLogin() {
+        openAtLogin = SMAppService.mainApp.status == .enabled
     }
     func parameters(preview: Bool = false) -> BendParameters {
         var p = BendParameters()
@@ -188,6 +202,7 @@ final class OverlayWindow: NSPanel {
                 metalView = view
                 enabled = true
                 starting = false
+                startTicking()
                 progress = 0
                 sensor.setActive(true)
                 status = "Live desktop connected. Close the lid gently to bend it."
@@ -258,8 +273,24 @@ final class OverlayWindow: NSPanel {
     func playPreview() {
         playStart = CACurrentMediaTime()
         previewPlaying = true
+        startTicking()
+    }
+    /// Runs only while the effect or preview animates, so the idle menu bar app doesn't wake 60 times a second.
+    private func startTicking() {
+        guard timer == nil else { return }
+        lastTime = CACurrentMediaTime()
+        let timer = Timer(timeInterval: 1 / 60.0, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.tick() }
+        }
+        self.timer = timer
+        RunLoop.main.add(timer, forMode: .common)
     }
     private func tick() {
+        guard enabled || previewPlaying else {
+            timer?.invalidate()
+            timer = nil
+            return
+        }
         let now = CACurrentMediaTime()
         let dt = now - lastTime
         lastTime = now

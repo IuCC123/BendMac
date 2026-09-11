@@ -32,15 +32,20 @@ import SwiftUI
         menu.addItem(
             withTitle: "Quit BendMac", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         statusItem.menu = menu
-        openSettings()
+        // A restored session starts quietly in the menu bar.
+        if !model.wantsEnabled { openSettings() }
         if CommandLine.arguments.contains("--smoke") { model.enable() }
     }
-    @objc func toggleEffect() { if model.enabled { model.disable() } else { model.enable() } }
+    @objc func toggleEffect() { if model.wantsEnabled { model.disable() } else { model.enable() } }
     @objc func playPreview() {
         openSettings()
         model.playPreview()
     }
+    func applicationDidBecomeActive(_ notification: Notification) {
+        model.refreshOpenAtLogin()
+    }
     @objc func openSettings() {
+        model.refreshOpenAtLogin()
         if settings == nil {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 800, height: 720),
@@ -62,7 +67,7 @@ import SwiftUI
         NSApp.activate(ignoringOtherApps: true)
         settings?.makeKeyAndOrderFront(nil)
     }
-    func applicationWillTerminate(_ notification: Notification) { model.disable() }
+    func applicationWillTerminate(_ notification: Notification) { model.disable(preserveIntent: true) }
 }
 @main enum BendMacMain {
     @MainActor static func main() {

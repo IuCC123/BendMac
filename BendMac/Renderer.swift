@@ -123,8 +123,10 @@ final class BendRenderer: NSObject, MTKViewDelegate {
     private func encodeBlur(_ source: MTLTexture, command: MTLCommandBuffer, strength: Float) -> [MTLTexture]
     {
         if strength < 0.001 { return [source, source, source, source] }
-        let w = max(1, source.width / 4)
-        let h = max(1, source.height / 4)
+        // Cap the blur working resolution independently of the Retina capture.
+        // Sigma scales with this width to preserve the intended blur radius.
+        let w = max(1, min(source.width / 4, 480))
+        let h = max(1, source.height * w / source.width)
         if blurTextures.first?.width != w || blurTextures.first?.height != h {
             let descriptor = MTLTextureDescriptor.texture2DDescriptor(
                 pixelFormat: .rgba8Unorm, width: w, height: h, mipmapped: false)
