@@ -32,8 +32,10 @@ final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
         // Exclude our entire process to prevent recursive capture of the overlay and settings.
         let filter = SCContentFilter(display: display, excludingApplications: ownApp, exceptingWindows: [])
         let config = SCStreamConfiguration()
-        config.width = CGDisplayPixelsWide(displayID)
-        config.height = CGDisplayPixelsHigh(displayID)
+        // CGDisplayPixelsWide reports points; capture the backing pixels so Retina text stays sharp.
+        let mode = CGDisplayCopyDisplayMode(displayID)
+        config.width = mode?.pixelWidth ?? CGDisplayPixelsWide(displayID)
+        config.height = mode?.pixelHeight ?? CGDisplayPixelsHigh(displayID)
         config.minimumFrameInterval = CMTime(value: 1, timescale: 5)
         config.queueDepth = 3
         config.pixelFormat = kCVPixelFormatType_32BGRA

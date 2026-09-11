@@ -24,6 +24,8 @@ Adjust the style, blur, perspective, and shadow in Appearance. The preview works
 
 Press **Escape** to pause the effect. Close the settings window to leave BendMac running, or quit from the menu bar. Only the built-in display is affected.
 
+Turn on **General → Open at login** to start BendMac with your Mac. If the effect was on when you quit, it comes back on by itself.
+
 Use **Check for updates** to install future versions in the app. If you're on 0.4.0 or earlier, download the current version manually first.
 
 Screen frames stay in memory. Nothing is recorded to disk or uploaded, and audio isn't captured. Update checks contact GitHub to look for new releases.
