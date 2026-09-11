@@ -36,12 +36,16 @@ import SwiftUI
         if !model.wantsEnabled { openSettings() }
         if CommandLine.arguments.contains("--smoke") { model.enable() }
     }
-    @objc func toggleEffect() { if model.enabled { model.disable() } else { model.enable() } }
+    @objc func toggleEffect() { if model.wantsEnabled { model.disable() } else { model.enable() } }
     @objc func playPreview() {
         openSettings()
         model.playPreview()
     }
+    func applicationDidBecomeActive(_ notification: Notification) {
+        model.refreshOpenAtLogin()
+    }
     @objc func openSettings() {
+        model.refreshOpenAtLogin()
         if settings == nil {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 800, height: 720),

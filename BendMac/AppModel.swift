@@ -37,7 +37,7 @@ final class OverlayWindow: NSPanel {
     private var handler: EventHandlerRef?
     private var generation = 0
     private var stopping = false
-    private(set) var wantsEnabled = false {
+    @Published private(set) var wantsEnabled = false {
         didSet { UserDefaults.standard.set(wantsEnabled, forKey: "enabled") }
     }
     private var sleeping = false
@@ -135,6 +135,9 @@ final class OverlayWindow: NSPanel {
             status = "Could not change Open at login: \(error.localizedDescription)"
         }
         if SMAppService.mainApp.status == .requiresApproval { SMAppService.openSystemSettingsLoginItems() }
+        refreshOpenAtLogin()
+    }
+    func refreshOpenAtLogin() {
         openAtLogin = SMAppService.mainApp.status == .enabled
     }
     func parameters(preview: Bool = false) -> BendParameters {
