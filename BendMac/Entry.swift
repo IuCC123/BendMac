@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 import SwiftUI
 
 @MainActor final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -6,6 +7,7 @@ import SwiftUI
     var statusItem: NSStatusItem!
     var settings: NSWindow?
     let updates = UpdateController()
+    private var presentingSettings = false
     func applicationDidFinishLaunching(_ notification: Notification) {
         model = AppModel()
         updates.start()
@@ -32,8 +34,15 @@ import SwiftUI
         menu.addItem(
             withTitle: "Quit BendMac", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         statusItem.menu = menu
-        // A restored session starts quietly in the menu bar.
-        if !model.wantsEnabled { openSettings() }
+        // Login launches stay quiet. A deliberate launch opens settings even
+        // when the effect is restored from the previous session.
+        let launchEvent = NSAppleEventManager.shared().currentAppleEvent
+        let launchedAtLogin =
+            launchEvent?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue
+            == keyAELaunchedAsLogInItem
+        if !launchedAtLogin && !CommandLine.arguments.contains("--background") {
+            openSettings()
+        }
         if CommandLine.arguments.contains("--smoke") { model.enable() }
     }
     @objc func toggleEffect() { if model.wantsEnabled { model.disable() } else { model.enable() } }
@@ -42,9 +51,15 @@ import SwiftUI
         model.playPreview()
     }
     func applicationDidBecomeActive(_ notification: Notification) {
-        model.refreshOpenAtLogin()
+        // Launchers can activate an accessory app without sending a reopen
+        // AppleEvent. Restore its window on that path as well.
+        guard model != nil else { return }
+        openSettings()
     }
     @objc func openSettings() {
+        guard model != nil, !presentingSettings else { return }
+        presentingSettings = true
+        defer { presentingSettings = false }
         model.refreshOpenAtLogin()
         if settings == nil {
             let window = NSWindow(
@@ -54,18 +69,30 @@ import SwiftUI
                 defer: false)
             window.title = "BendMac"
             window.titlebarAppearsTransparent = true
+            window.isOpaque = false
+            window.backgroundColor = .clear
             window.titleVisibility = .hidden
             window.isReleasedWhenClosed = false
             window.titlebarSeparatorStyle = .none
             window.isMovableByWindowBackground = true
+            window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
             window.contentMinSize = NSSize(width: 740, height: 670)
             window.contentView = NSHostingView(rootView: SettingsView(model: model, updates: updates))
             window.center()
             window.delegate = self
             settings = window
         }
-        NSApp.activate(ignoringOtherApps: true)
+        if settings?.isMiniaturized == true { settings?.deminiaturize(nil) }
         settings?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+    func windowWillClose(_ notification: Notification) {
+        model.previewPlaying = false
+    }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        openSettings()
+        // We restored the window ourselves; suppress AppKit's default handling.
+        return false
     }
     func applicationWillTerminate(_ notification: Notification) { model.disable(preserveIntent: true) }
 }

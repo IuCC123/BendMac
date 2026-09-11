@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
       - name: Build checked-in Xcode project

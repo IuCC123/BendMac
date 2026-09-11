@@ -16,8 +16,9 @@ final class OverlayWindow: NSPanel {
     @Published var sensorAngle: Double?
     @Published var followLid = true
     @Published var manualAngle = 115.0
-    @Published var previewAngle = 70.0
+    @Published var previewAngle = 105.0
     @Published var previewPlaying = false
+    @Published var previewFollowsLid = false
     @Published var style = 0 { didSet { save() } }
     @Published var perspective = 1.0 { didSet { save() } }
     @Published var blur = 0.9 { didSet { save() } }
@@ -76,7 +77,8 @@ final class OverlayWindow: NSPanel {
             }
         }
         sensor.start()
-        capture.onError = { [weak self] message in self?.interrupt(message: "Capture interrupted: \(message)") }
+        capture.onError = { [weak self] message in self?.interrupt(message: "Capture interrupted: \(message)")
+        }
         let center = NSWorkspace.shared.notificationCenter
         center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) {
             [weak self] _ in
@@ -143,13 +145,26 @@ final class OverlayWindow: NSPanel {
     func parameters(preview: Bool = false) -> BendParameters {
         var p = BendParameters()
         p.progress = Float(
-            preview ? BendMath.progress(angle: previewAngle, clearAngle: clearAngle) : progress)
+            preview ? BendMath.progress(angle: displayedPreviewAngle, clearAngle: clearAngle) : progress)
         p.perspective = Float(perspective)
         p.blur = Float(blur)
         p.shadow = Float(shadow)
         p.style = Float(style)
         p.protectedTop = preview ? 0 : protectedTop
         return p
+    }
+    var displayedPreviewAngle: Double {
+        previewFollowsLid ? (sensorAngle ?? clearAngle) : previewAngle
+    }
+    func calibrateOpenAngle() {
+        guard let sensorAngle else { return }
+        clearAngle = min(135, max(80, sensorAngle))
+    }
+    func resetAppearance() {
+        perspective = 1
+        blur = 0.9
+        shadow = 0.35
+        style = 0
     }
     func enable() {
         guard !enabled, !starting, !stopping, !sleeping else { return }
@@ -184,7 +199,7 @@ final class OverlayWindow: NSPanel {
                 let window = OverlayWindow(
                     contentRect: screen.frame, styleMask: [.borderless, .nonactivatingPanel],
                     backing: .buffered, defer: false)
-                window.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue - 1)
+                window.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1)
                 window.isOpaque = true
                 window.backgroundColor = .black
                 window.hasShadow = false
@@ -235,9 +250,13 @@ final class OverlayWindow: NSPanel {
                     self.sensor.reconnect()
                     continue
                 }
-                guard NSScreen.screens.contains(where: {
-                    CGDisplayIsBuiltin(($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0) != 0
-                }) else { continue }
+                guard
+                    NSScreen.screens.contains(where: {
+                        CGDisplayIsBuiltin(
+                            ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?
+                                .uint32Value ?? 0) != 0
+                    })
+                else { continue }
                 self.enable()
                 return
             }
@@ -271,6 +290,7 @@ final class OverlayWindow: NSPanel {
         }
     }
     func playPreview() {
+        previewFollowsLid = false
         playStart = CACurrentMediaTime()
         previewPlaying = true
         startTicking()

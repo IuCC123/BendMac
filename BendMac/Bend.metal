@@ -11,15 +11,16 @@ fragment float4 bendFragment(VertexOut in [[stage_in]], texture2d<float> desktop
     float fold=clamp(p.progress,0.0,1.0);
     if (fold < 0.00001) return desktop.sample(s,in.uv);
     float height=1.0-in.uv.y;
-    // Keep the hinge and Dock still. The physical screen supplies the rotation;
-    // the shader only adds a small lift and narrows the upper corners.
-    float hingeWeight=1.0-smoothstep(0.78,0.94,in.uv.y);
-    float lift=0.32*fold*p.perspective;
-    float projectedY=in.uv.y*(1.0+lift)/(1.0+lift*in.uv.y);
-    float sourceY=mix(in.uv.y,projectedY,hingeWeight);
-    // A continuous taper avoids flaring back into the bezel above the hinge.
-    float inset=0.10*fold*p.perspective*height;
-    float2 uv=float2((in.uv.x-0.5)/(1.0-2.0*inset)+0.5,sourceY);
+    // Inverse projective mapping. The lower edge stays anchored at the hinge,
+    // while the upper corners draw inward like the reference's folding sheet.
+    // A single homography keeps straight desktop lines straight throughout.
+    float taper=0.24*fold*p.perspective;
+    float depth=(2.0*taper)/max(0.1,1.0-2.0*taper);
+    float sourceHeight=height/(1.0+depth*(1.0-height));
+    float width=1.0/(1.0+depth*sourceHeight);
+    float inset=(1.0-width)*0.5;
+    float2 uv=float2((in.uv.x-0.5)/width+0.5,1.0-sourceHeight);
+    float hingeWeight=smoothstep(0.0,0.22,height);
     // Concentrate defocus at the upper edge, including the menu bar. Keeping
     // the centre readable avoids making the whole desktop look out of focus.
     float radius=48.0*fold*pow(height,3.5)*(p.style>1.5 ? 1.25 : 1.0);
@@ -30,7 +31,7 @@ fragment float4 bendFragment(VertexOut in [[stage_in]], texture2d<float> desktop
     else if(radius<28.0) color=mix(soft.sample(s,uv).rgb,medium.sample(s,uv).rgb,smoothstep(10.0,28.0,radius));
     else color=mix(medium.sample(s,uv).rgb,strong.sample(s,uv).rgb,smoothstep(28.0,64.0,radius));
     // Feather the sides, not a horizontal black strip across the top.
-    float feather=max(fwidth(in.uv.x),0.022*fold*(0.25+0.75*p.blur)*height);
+    float feather=max(fwidth(in.uv.x),0.0025*fold*height);
     float edge=min(in.uv.x-inset,1.0-inset-in.uv.x);
     float coverage=smoothstep(-feather,feather,edge);
     float sideShade=exp(-max(edge,0.0)/0.035)*fold*p.shadow*0.22*height*hingeWeight;

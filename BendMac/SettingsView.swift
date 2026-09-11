@@ -60,7 +60,7 @@ struct SettingsView: View {
     var body: some View {
         HStack(spacing: 0) {
             sidebar
-            Divider().overlay(Color.primary.opacity(0.025))
+            Rectangle().fill(Color.primary.opacity(0.08)).frame(width: 1)
             VStack(spacing: 0) {
                 toolbar
                 ScrollView {
@@ -84,9 +84,10 @@ struct SettingsView: View {
                             active: PageTransition(amount: 1), identity: PageTransition(amount: 0)))
             }
             .animation(reduceMotion ? nil : .easeOut(duration: 0.22), value: page)
-            .background(Color(nsColor: .windowBackgroundColor).opacity(0.92))
+            .background(Color(nsColor: .windowBackgroundColor))
         }
         .frame(minWidth: 740, idealWidth: 800, minHeight: 670, idealHeight: 720)
+        .onDisappear { model.previewPlaying = false }
         .ignoresSafeArea(.container, edges: .top)
         .tint(.blue)
     }
@@ -115,10 +116,9 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(page == item ? .isSelected : [])
             }
-            Text("VERSION \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
-                .font(.system(size: 9, weight: .medium, design: .monospaced))
-                .tracking(0.6)
-                .foregroundStyle(.tertiary)
+            Text("BendMac \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
                 .padding(.horizontal, 10)
                 .padding(.top, 12)
             Spacer()
@@ -154,7 +154,9 @@ struct SettingsView: View {
             .buttonStyle(.plain)
             .onHover { coffeeHovered = $0 }
             .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: coffeeHovered)
-            .help("Support Jamie’s student project. Opens Buy Me a Coffee in your browser. BendMac stays completely free.")
+            .help(
+                "Support Jamie’s student project. Opens Buy Me a Coffee in your browser. BendMac stays completely free."
+            )
             .padding(.bottom, 8)
             Button(action: updates.checkForUpdates) {
                 Label(
@@ -182,9 +184,14 @@ struct SettingsView: View {
                 Circle().fill(model.enabled ? Color.green : Color.secondary.opacity(0.45))
                     .frame(width: 6, height: 6)
                     .frame(width: 15)
-                Text(model.enabled ? "Effect enabled" : "Effect paused")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                Text(
+                    model.enabled
+                        ? "Effect enabled"
+                        : model.starting
+                            ? "Connecting…" : model.wantsEnabled ? "Needs attention" : "Effect paused"
+                )
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 10)
@@ -195,28 +202,32 @@ struct SettingsView: View {
         .padding(.top, 44)
         .padding(.bottom, 12)
         .frame(width: 176)
-        .background(.ultraThinMaterial)
+        .background {
+            if reduceTransparency {
+                Color(nsColor: .windowBackgroundColor)
+            } else {
+                SidebarBackdrop()
+                    .overlay {
+                        LinearGradient(
+                            colors: [.white.opacity(0.07), .clear, .white.opacity(0.015)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        )
+                        .allowsHitTesting(false)
+                    }
+            }
+        }
     }
 
     private var selectionBackground: some View {
-        RoundedRectangle(cornerRadius: 9)
-            .fill(reduceTransparency ? AnyShapeStyle(Color.blue) : AnyShapeStyle(.ultraThinMaterial))
-            .overlay {
+        Group {
+            if #available(macOS 26.0, *), !reduceTransparency {
+                SidebarSelectionGlass()
+            } else {
                 RoundedRectangle(cornerRadius: 9)
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.blue.opacity(0.88), Color.blue.opacity(0.98)],
-                            startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .fill(Color.accentColor)
             }
-            .overlay {
-                RoundedRectangle(cornerRadius: 9)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [.white.opacity(0.42), .white.opacity(0.05)],
-                            startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.75)
-            }
-            .shadow(color: .blue.opacity(0.16), radius: 5, y: 2)
-            .allowsHitTesting(false)
+        }
+        .allowsHitTesting(false)
     }
 
     private var toolbar: some View {
@@ -239,6 +250,24 @@ struct SettingsView: View {
             .accessibilityLabel("Next settings page")
             Text(page.rawValue).font(.system(size: 13, weight: .semibold)).padding(.leading, 6)
             Spacer()
+            Toggle(
+                isOn: Binding(
+                    get: { model.wantsEnabled },
+                    set: { if $0 { model.enable() } else { model.disable() } }
+                )
+            ) {
+                Text(
+                    model.starting
+                        ? "Connecting…"
+                        : model.enabled
+                            ? "Enabled" : model.wantsEnabled ? "Needs attention" : "Enable BendMac"
+                )
+                .font(.system(size: 11)).foregroundStyle(.secondary)
+            }
+            .toggleStyle(.switch)
+            .controlSize(.mini)
+            .fixedSize()
+            .accessibilityLabel("Enable BendMac")
         }
         .buttonStyle(.plain)
         .foregroundStyle(.primary)
@@ -267,51 +296,75 @@ struct SettingsView: View {
 
     private var appearance: some View {
         VStack(alignment: .leading, spacing: 18) {
-            SettingsSection("Preview") {
-                VStack(spacing: 14) {
-                    VStack(spacing: 4) {
-                        Text("Preview the fold").font(.system(size: 13, weight: .semibold))
-                        Text("Play the animation, or move the slider to try it yourself.")
-                            .font(.system(size: 11)).foregroundStyle(.secondary)
-                    }
-                    ZStack(alignment: .bottom) {
+            VStack(spacing: 16) {
+                VStack(spacing: 5) {
+                    Text("A little flexibility.")
+                        .font(.system(size: 22, weight: .semibold))
+                    Text("Your desktop, in step with your lid.")
+                        .font(.system(size: 12)).foregroundStyle(.secondary)
+                }
+                VStack(spacing: 0) {
+                    ZStack(alignment: .top) {
                         MetalPreview(model: model)
                             .aspectRatio(1.6, contentMode: .fit)
-                            .clipShape(RoundedRectangle(cornerRadius: 19))
-                        Button {
-                            if model.previewPlaying {
-                                model.previewPlaying = false
-                            } else {
-                                model.playPreview()
-                            }
-                        } label: {
-                            Label(
-                                model.previewPlaying ? "Pause" : "Play fold",
-                                systemImage: model.previewPlaying ? "pause.fill" : "play.fill")
-                        }
-                        .buttonStyle(PreviewPillStyle(reduceMotion: reduceMotion))
-                        .accessibilityLabel(model.previewPlaying ? "Pause fold preview" : "Play fold preview")
-                        .padding(.bottom, 16)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .padding(7)
+                            .background(Color(white: 0.07), in: RoundedRectangle(cornerRadius: 14))
+                        UnevenRoundedRectangle(bottomLeadingRadius: 4, bottomTrailingRadius: 4)
+                            .fill(Color(white: 0.07))
+                            .frame(width: 48, height: 10)
+                            .padding(.top, 6)
                     }
-                    .overlay(RoundedRectangle(cornerRadius: 19).strokeBorder(.white.opacity(0.18)))
-                    .shadow(color: .black.opacity(0.18), radius: 12, y: 6)
-                    .frame(maxWidth: 280)
-                    HStack(spacing: 10) {
-                        Image(systemName: "macbook").foregroundStyle(.secondary)
-                        Slider(
-                            value: $model.previewAngle, in: 12...135,
-                            onEditingChanged: { _ in model.previewPlaying = false }
-                        )
-                        .accessibilityLabel("Preview lid angle")
-                        Text("\(Int(model.previewAngle))°").monospacedDigit().foregroundStyle(.secondary)
-                            .frame(width: 34, alignment: .trailing)
+                    .padding(.horizontal, 22)
+                    ZStack(alignment: .top) {
+                        UnevenRoundedRectangle(bottomLeadingRadius: 12, bottomTrailingRadius: 12)
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color(white: 0.8), Color(white: 0.54)], startPoint: .top,
+                                    endPoint: .bottom)
+                            )
+                            .frame(height: 9)
+                        UnevenRoundedRectangle(bottomLeadingRadius: 4, bottomTrailingRadius: 4)
+                            .fill(Color(white: 0.42)).frame(width: 48, height: 3)
                     }
-                    .frame(maxWidth: 280)
-                    .font(.system(size: 11))
                 }
-                .padding(16)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: 310)
+                .shadow(color: .black.opacity(0.16), radius: 10, y: 7)
+                .accessibilityLabel("Animated desktop preview")
+                HStack(spacing: 12) {
+                    Button {
+                        if model.previewPlaying { model.previewPlaying = false } else { model.playPreview() }
+                    } label: {
+                        Image(systemName: model.previewPlaying ? "pause.fill" : "play.fill")
+                            .frame(width: 14, height: 16)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .help(model.previewPlaying ? "Pause preview" : "Play fold preview")
+                    .accessibilityLabel(model.previewPlaying ? "Pause fold preview" : "Play fold preview")
+                    Slider(
+                        value: $model.previewAngle, in: 12...135,
+                        onEditingChanged: { _ in
+                            model.previewPlaying = false
+                        }
+                    )
+                    .disabled(model.previewFollowsLid)
+                    .accessibilityLabel("Preview lid angle")
+                    Text("\(Int(model.displayedPreviewAngle))°")
+                        .font(.system(size: 12)).monospacedDigit().foregroundStyle(.secondary)
+                        .frame(width: 36, alignment: .trailing)
+                }
+                .frame(maxWidth: 290)
+                Toggle("Use live lid angle", isOn: $model.previewFollowsLid)
+                    .toggleStyle(.checkbox)
+                    .font(.system(size: 11))
+                    .disabled(model.sensorAngle == nil)
+                    .onChange(of: model.previewFollowsLid) { _, follows in
+                        if follows { model.previewPlaying = false }
+                    }
             }
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
             SettingsSection("Appearance") {
                 VStack(spacing: 0) {
                     HStack {
@@ -336,13 +389,9 @@ struct SettingsView: View {
                 }
             }
             Button {
-                model.perspective = 1
-                model.blur = 0.9
-                model.shadow = 0.35
-                model.style = 0
-                model.clearAngle = 105
+                model.resetAppearance()
             } label: {
-                Label("Reset to default", systemImage: "arrow.uturn.backward")
+                Label("Reset appearance", systemImage: "arrow.uturn.backward")
                     .font(.system(size: 11)).foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
@@ -377,6 +426,11 @@ struct SettingsView: View {
                     Text(model.status).font(.system(size: 12)).foregroundStyle(.secondary)
                         .textSelection(.enabled).padding(14)
                 }
+            }
+            if model.wantsEnabled && !model.enabled && !model.starting {
+                Button("Try connecting again", action: model.enable)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
             }
             SettingsSection("Screen Recording") {
                 VStack(alignment: .leading, spacing: 14) {
@@ -447,6 +501,15 @@ struct SettingsView: View {
                     sliderRow(
                         "Clear at", detail: "The desktop returns to normal above this angle.",
                         value: $model.clearAngle, range: 80...135, degrees: true)
+                    HStack {
+                        Text("Use your comfortable viewing position.")
+                            .font(.system(size: 11)).foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Use current angle", action: model.calibrateOpenAngle)
+                            .controlSize(.small)
+                            .disabled(model.sensorAngle == nil)
+                            .help("Sets the clear angle to your current lid angle, between 80° and 135°.")
+                    }.padding(.horizontal, 14).padding(.bottom, 14)
                     rowDivider
                     Toggle(isOn: $model.sound) {
                         SettingCaption(
@@ -556,8 +619,10 @@ private struct SettingsSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
             Text(title).font(.system(size: 12, weight: .semibold)).padding(.leading, 1)
-            content.background(Color.primary.opacity(0.035), in: RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.primary.opacity(0.035)))
+            content.background(
+                Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10)
+            )
+            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.primary.opacity(0.08)))
         }
     }
 }
@@ -571,21 +636,6 @@ private struct SidebarLabelStyle: LabelStyle {
     }
 }
 
-private struct PreviewPillStyle: ButtonStyle {
-    let reduceMotion: Bool
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 11, weight: .semibold))
-            .foregroundStyle(Color.black.opacity(0.8))
-            .padding(.horizontal, 13).padding(.vertical, 8)
-            .background(.white.opacity(0.96), in: Capsule())
-            .overlay(Capsule().strokeBorder(.black.opacity(0.06)))
-            .shadow(color: .black.opacity(0.16), radius: 4, y: 2)
-            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.96 : 1)
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: configuration.isPressed)
-    }
-}
-
 private struct PageTransition: ViewModifier {
     var amount: Double
 
@@ -594,5 +644,31 @@ private struct PageTransition: ViewModifier {
             .opacity(1 - amount)
             .blur(radius: amount * 4)
             .offset(y: amount * 6)
+    }
+}
+
+/// Sample the desktop behind the window, rather than the opaque hosting view.
+private struct SidebarBackdrop: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .sidebar
+        view.blendingMode = .behindWindow
+        view.state = .followsWindowActiveState
+        return view
+    }
+    func updateNSView(_ view: NSVisualEffectView, context: Context) {}
+}
+
+@available(macOS 26.0, *)
+private struct SidebarSelectionGlass: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSGlassEffectView {
+        let view = NSGlassEffectView()
+        view.style = .regular
+        view.cornerRadius = 9
+        view.tintColor = .controlAccentColor
+        return view
+    }
+    func updateNSView(_ view: NSGlassEffectView, context: Context) {
+        view.tintColor = .controlAccentColor
     }
 }
