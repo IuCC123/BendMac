@@ -3,6 +3,38 @@
     <channel>
         <title>BendMac</title>
         <item>
+            <title>0.4.8</title>
+            <pubDate>Fri, 11 Sep 2026 17:26:21 +0200</pubDate>
+            <sparkle:version>12</sparkle:version>
+            <sparkle:shortVersionString>0.4.8</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[<p>BendMac 0.4.8 improves startup and recovery, remembers manual controls, and reduces background work when the desktop is not bending.</p>
+<h3>Fixed</h3>
+<ul>
+<li>Temporary screen-capture failures during launch, login, or wake now retry after each connection attempt finishes.</li>
+<li>Enabling before the lid sensor is ready now resumes when a valid reading arrives, including after the initial retry window has ended.</li>
+<li>Manual mode and its angle are restored together when you relaunch BendMac.</li>
+<li>Pausing during startup waits for the old connection to finish before reconnecting. Rapid pause and enable actions keep your latest choice.</li>
+<li>Capture refuses to start without excluding BendMac&#x27;s own windows, preventing recursive desktop capture during startup and reconnects.</li>
+<li>A failed frame-rate update from an old connection no longer leaves a reconnected, visible effect running at the idle capture rate.</li>
+<li>Denied Screen Recording permission stops automatic retries and shows instructions for granting access.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>The animation timer stops once the effect has settled. Lid polling slows down while the desktop is clear or manual mode is active, and pauses during sleep.</li>
+<li>The lid sensor continues checking for a device that becomes available later.</li>
+</ul>
+<h3>Developer checks</h3>
+<ul>
+<li>Added regression coverage for asynchronous recovery, cancellation, saved settings, and idle timers, plus live enable, bend, open, and pause cycles.</li>
+<li>Capture-exclusion checks now require a frame captured after the test overlay is confirmed visible.</li>
+<li>Removed unused shader parameters. GPU preview exports now report allocation, encoding, and file-writing failures instead of announcing success.</li>
+</ul>
+]]></description>
+            <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.8/BendMac-macOS.zip" length="2603024" type="application/octet-stream" sparkle:edSignature="+XoVECbxFeiCViMrKbKvdHnWn626Hdmf1YKHEFCz0bs63a25L7G9gmMtln+4cZu0lQG4Dw/9U8TlsxZo4rRICQ=="/>
+        </item>
+        <item>
             <title>0.4.7</title>
             <pubDate>Fri, 11 Sep 2026 09:30:58 +0200</pubDate>
             <sparkle:version>11</sparkle:version>
