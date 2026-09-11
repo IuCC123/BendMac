@@ -24,17 +24,9 @@ document.querySelectorAll('[data-morph]').forEach(icon => {
   motionPreference.addEventListener('change', () => { if (motionPreference.matches) morph.set(target()); });
 });
 
-const playPath = "M8 5 19 12 8 19Z";
-const pausePath = "M8 5V19M16 5V19";
-const playMorph = createMorph(document.querySelector("#play-icon path"), playPath, { reducedMotion: "user" });
-
 document.querySelectorAll(".questions details").forEach(details => {
   const plus = "M5 12H19M12 5V19";
   const minus = "M5 12H19";
   const morph = createMorph(details.querySelector("summary path"), details.open ? minus : plus, { reducedMotion: "user" });
   details.addEventListener("toggle", () => morph.morphTo(details.open ? minus : plus, "snappy"));
-});
-
-document.addEventListener('previewstate', event => {
-  playMorph.morphTo(event.detail.playing ? pausePath : playPath, 'snappy');
 });

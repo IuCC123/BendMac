@@ -12,34 +12,43 @@
   <meta property="og:description" content="A gentle blur as you close the lid. Free, native, and open source. Inspired by Bendy.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/icon.png" type="image/png">
-  <link rel="stylesheet" href="styles.css?v=9">
-  <script type="module" src="app.js?v=5"></script>
-  <script src="preview.js?v=8" defer></script>
+  <script src="theme.js?v=1"></script>
+  <link rel="stylesheet" href="styles.css?v=23">
+  <script type="module" src="app.js?v=6"></script>
+  <script src="preview.js?v=9" defer></script>
   <script type="module" src="stars.js"></script>
   <script src="motion.js" defer></script>
+  <script src="navigation.js?v=1" defer></script>
+  <script src="shared-art.js?v=1" defer></script>
+  <script src="footer.js?v=1" defer></script>
+  <script src="ascii.js?v=6" defer></script>
   <script src="downloads.js" defer></script>
+  <script src="compatibility.js?v=4" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="nav">
     <nav class="nav-inner" aria-label="Main navigation">
       <a class="wordmark" href="#" aria-label="BendMac home"><img src="assets/icon.png" alt="" width="28" height="28">BendMac</a>
-      <div class="nav-links"><a href="#effect">The effect</a><a href="#open-source">Open source</a><a class="nav-download" href="https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg">Download <svg class="ui-icon link-icon" data-morph="download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4V19M6 13L12 19L18 13"/></svg></a><a class="github-stars" id="github-stars" href="https://github.com/IuCC123/BendMac" aria-label="Star BendMac on GitHub"><svg data-morph="star" class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 14.8 8.7 21 9.6 16.5 14 17.6 20.2 12 17.3 6.4 20.2 7.5 14 3 9.6 9.2 8.7Z"/></svg><span>Star</span><span id="star-count" class="star-count" hidden></span></a></div>
+      <div class="nav-links"><a href="#effect">The effect</a><a href="#open-source">Open source</a><a class="nav-download" href="https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg">Download <svg class="ui-icon link-icon" data-morph="download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4V19M6 13L12 19L18 13"/></svg></a><a class="github-stars" id="github-stars" href="https://github.com/IuCC123/BendMac" aria-label="Star BendMac on GitHub"><svg data-morph="star" class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 14.8 8.7 21 9.6 16.5 14 17.6 20.2 12 17.3 6.4 20.2 7.5 14 3 9.6 9.2 8.7Z"/></svg><span>Star</span><span id="star-count" class="star-count" hidden></span></a><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g class="theme-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></g><path class="theme-moon" d="M20.9 13.1A9 9 0 0 1 10.9 3.1a9 9 0 1 0 10 10Z"/></svg></button></div>
     </nav>
   </header>
   <main id="main">
+    <div class="light-stage">
+    <canvas id="ascii-art" aria-hidden="true"></canvas>
     <section class="hero" aria-labelledby="hero-title">
       <h1 id="hero-title">A softer side<br><span>of your Mac.</span></h1>
       <p class="hero-copy">Your desktop gently blurs as you close the lid.<br>A small detail that feels right at home.</p>
       <div class="hero-actions"><a class="button primary" href="https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg">Download for Mac <svg class="ui-icon link-icon" data-morph="download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4V19M6 13L12 19L18 13"/></svg></a><a class="text-link" href="https://github.com/IuCC123/BendMac">View on GitHub <svg class="ui-icon link-icon" data-morph="external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M7 7H17V17"/></svg></a></div>
-      <p class="compatibility">Free & open source <span aria-hidden="true">·</span> macOS 14+ <span aria-hidden="true">·</span> Apple silicon</p>
+      <p class="compatibility">Free & open source <span aria-hidden="true">·</span> macOS 14+ <span aria-hidden="true">·</span> Apple silicon MacBooks</p>
+      <button class="compatibility-note" data-compatibility>Not every MacBook supports lid tracking. Check your model ↗</button>
       <p class="download-total"><a id="download-count" hidden href="https://github.com/IuCC123/BendMac/releases" title="DMG and ZIP downloads across GitHub releases, including repeat downloads and updates."></a></p>
     </section>
     <section class="demo-section" id="effect" aria-label="BendMac animation preview">
       <div class="macbook">
       <div class="lid-stage">
       <div class="demo-window">
-        <video id="preview" playsinline muted preload="auto" poster="assets/preview-poster.png?v=0.4.3" aria-label="BendMac desktop becomes progressively blurred near the top while staying nearly flat as the lid closes">
+        <video id="preview" playsinline muted preload="none" poster="assets/preview-poster.png?v=0.4.3" aria-label="BendMac desktop becomes progressively blurred near the top while staying nearly flat as the lid closes">
           <source src="assets/bend-preview.mp4?v=local8" type="video/mp4">
           <p>Your browser cannot play this video. <a href="assets/bend-preview.mp4?v=local8">Download the animation preview.</a></p>
         </video>
@@ -50,22 +59,55 @@
       </div>
       <img class="macbook-base" src="assets/macbook-base.png" alt="" width="2079" height="756" aria-hidden="true">
       </div>
-      <div class="demo-controls">
-        <button id="play" class="replay" type="button" aria-label="Play fold animation"><svg id="play-icon" class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5 19 12 8 19Z"/></svg><span id="play-label">Play the fold</span></button>
-        <label for="lid">Try the fold</label>
-        <div class="range-wrap"><span>Open</span><input id="lid" type="range" min="0" max="100" step="1" value="0" aria-label="Preview lid closure" aria-valuetext="Lid open"><span>Folded</span></div>
-      </div>
-      <p class="demo-caption">The actual BendMac effect. Slide to feel it. <a href="assets/bendmac-laptop-demo.mp4">Watch the full demo</a>.</p>
+      <p class="demo-caption">The actual BendMac effect. Scroll down to fold. Scroll up to open. <a href="assets/bendmac-laptop-demo.mp4">Watch the full demo</a>.</p>
     </section>
+    </div>
     <section class="details section-width" aria-labelledby="details-title">
       <div class="details-intro"><p class="eyebrow">FEELS LIKE IT BELONGS</p><h2 id="details-title">Less motion.<br>More feeling.</h2><p>A soft blur gathers at the top of your desktop. A subtle bend follows your lid. Open it again, and everything settles back into place.</p></div>
       <div class="details-list">
-        <div><h3>In sync with your lid.</h3><p>Uses your MacBook’s lid-angle sensor to follow every movement. No keyboard shortcut to start the effect.</p></div>
-        <div><h3>Quietly in your menu bar.</h3><p>Adjust the blur, perspective, and shadow to your taste. Pause any time with Escape.</p></div>
-        <div><h3>Your desktop stays yours.</h3><p>Built with native Mac frameworks. Screen frames stay in memory on your Mac, without audio capture, saved recordings, or uploads.</p></div>
+        <div><pre class="feature-ascii" aria-hidden="true">       ______________________
+      | .                  . |
+      |  ::::::::::::::::::  |
+      |  ++++++++++++++++++  |
+      |  ==================  |
+      |                      |
+      |                      |
+      |______________________|
+     / [] [] [] [] [] [] []  /|
+    / [] [] [] [] [] [] []  / /
+   /       _________      / /
+  /_______/________/_____/ /
+  |______________________|/    </pre><h3>In sync with your lid.</h3><p>Uses your MacBook’s lid-angle sensor to follow every movement. No keyboard shortcut to start the effect.</p></div>
+        <div><pre class="feature-ascii" aria-hidden="true">  +------------------------------+
+  |  *  File  Edit       [~]  o   |
+  +----------------------|-------+
+                  +------v-------+
+                  |   BendMac    |
+                  |--------------|
+                  | Effect   [*] |
+                  |              |
+                  | Blur  ---o-- |
+                  | Bend  -o---- |
+                  |              |
+                  | Pause    Esc |
+                  +--------------+ </pre><h3>Quietly in your menu bar.</h3><p>Adjust the blur, perspective, and shadow to your taste. Pause any time with Escape.</p></div>
+        <div><pre class="feature-ascii" aria-hidden="true">      +------------------------+
+      | o o o                  |
+      +------------------------+
+      |                        |
+      |        .------.        |
+      |       /        \       |
+      |       |        |       |
+      |     +------------+     |
+      |     |     ::     |     |
+      |     |     ||     |     |
+      |     +------------+     |
+      |                        |
+      +------------------------+</pre><h3>Your desktop stays yours.</h3><p>Built with native Mac frameworks. Screen frames stay in memory on your Mac, without audio capture, saved recordings, or uploads.</p></div>
       </div>
     </section>
     <section class="open-source" id="open-source" aria-labelledby="open-title">
+      <canvas id="shared-art" aria-hidden="true"></canvas>
       <div class="open-inner">
         <p class="eyebrow">FREE TO USE. YOURS TO BUILD ON.</p>
         <h2 id="open-title">Made to be shared.</h2>
@@ -74,10 +116,20 @@
         <p class="contribution-note">Found a bug? Have a better idea for the animation?<br><a href="https://github.com/IuCC123/BendMac/issues">Open an issue</a> or send a pull request. Contributions are welcome.</p>
       </div>
     </section>
+    <section class="maker section-width" aria-labelledby="maker-title">
+      <div class="maker-heading"><h2 id="maker-title">A small idea.<br>Made real.</h2></div>
+      <div class="maker-note">
+        <p>I’m a student, and BendMac is a fun project I’ve been working on recently. I liked the idea of giving the Mac a playful little detail, so I started building this and sharing it.</p>
+        <p>Seeing people actually use it means a lot to me. Whether you try it, share it with a friend, report a bug, or contribute some code, thank you. I’m grateful you’re here.</p>
+        <p>BendMac is completely free. If you’d like to support me, you can buy me a coffee. It’s entirely optional, and there’s nothing to unlock. Just enjoying the app is more than enough.</p>
+        <a class="button coffee" href="https://buymeacoffee.com/jamiepen" target="_blank" rel="noopener noreferrer"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h12v7a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V8Z M17 9h1a3 3 0 0 1 0 6h-1 M8 3v2 M12 2v3 M16 3v2"/></svg>Buy me a coffee<span class="sr-only"> (opens in a new tab)</span></a>
+        <span class="support-note">Optional support. Always a free app.</span>
+      </div>
+    </section>
     <section class="getting-started section-width" aria-labelledby="start-title">
       <h2 id="start-title">A few things to know.</h2>
       <div class="questions">
-        <details><summary>Will it work on my Mac?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>BendMac needs macOS 14 Sonoma or later and an Apple silicon MacBook with a lid-angle sensor. The current build has been tested on an M5 MacBook Air. The preview works without a sensor. External displays stay unchanged.</p></details>
+        <details><summary>Will it work on my Mac?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>BendMac needs macOS 14 Sonoma or later and an Apple silicon MacBook with a lid-angle sensor. The effect has been tested on an M5 MacBook Air. Automatic lid tracking is currently unsupported on the 2020 M1 MacBook Air and M1/M2 13-inch MacBook Pro with Touch Bar. Other Apple silicon MacBooks need a readable lid-angle sensor; the chip alone does not guarantee compatibility. The manual preview works without a sensor. External displays stay unchanged.</p></details>
         <details><summary>How do I get started?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>Download and open the DMG, then drag BendMac onto the Applications folder. Open General and enable the desktop effect. Grant Screen Recording permission when macOS asks. The app appears in your menu bar.</p><p>This early release is not Developer ID signed or notarized. You can inspect the source and build it in Xcode yourself. If you use the download, macOS may require you to approve it in Privacy & Security.</p></details>
         <details><summary>Why does it need Screen Recording?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>The effect uses a live image of your desktop so your wallpaper and windows blur together. Despite the permission’s name, BendMac does not save a recording. It does not capture audio or send screen content anywhere.</p></details>
         <details><summary>Can I change the effect?<svg  class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12H19M12 5V19"/></svg></summary><p>Yes. Choose Silk, Shade, or Frost, then adjust perspective, blur, and shadow. Set the lid angle at which your desktop becomes clear. You can also try the animation with a slider in the app.</p></details>
@@ -88,6 +140,87 @@
       <p>Bendy brought the folding-screen idea to the Mac. BendMac is an independent, free implementation that builds on that inspiration. Thanks for the spark.</p>
     </section>
   </main>
-  <footer class="footer section-width"><a class="wordmark" href="#"><img src="assets/icon.png" alt="" width="24" height="24">BendMac</a><p>Made for Mac. Open to everyone.</p><div><a href="https://github.com/IuCC123/BendMac/blob/main/LICENSE">MIT license</a><a href="https://github.com/IuCC123/BendMac">GitHub <svg class="ui-icon link-icon" data-morph="external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M7 7H17V17"/></svg></a></div><small>Independent project. Not affiliated with Apple or Bendy.</small></footer>
+  <footer class="site-footer">
+  <div class="footer section-width"><a class="wordmark" href="#"><img src="assets/icon.png" alt="" width="24" height="24">BendMac</a><p>Made for Mac. Open to everyone.</p><div><a href="https://github.com/IuCC123/BendMac/blob/main/LICENSE">MIT license</a><a href="https://github.com/IuCC123/BendMac">GitHub <svg class="ui-icon link-icon" data-morph="external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M7 7H17V17"/></svg></a></div><small>Independent project. Not affiliated with Apple or Bendy.</small></div>
+    <div class="footer-art" aria-hidden="true">
+      <div class="footer-type"><span>B</span><span>e</span><span>n</span><span>d</span><span>M</span><span>a</span><span>c</span></div>
+    </div>
+  </footer>
+<dialog id="compatibility-dialog" aria-labelledby="compatibility-title" aria-describedby="compatibility-intro">
+  <button class="compatibility-close" aria-label="Close compatibility check">×</button>
+  <p class="sr-only" id="compat-step">Choose your Mac</p>
+  <ol class="wizard-rail" aria-label="Compatibility steps">
+    <li><button type="button" data-wizard-step="0" aria-current="step" aria-label="Step 1 of 3: MacBook"><span class="wizard-number" aria-hidden="true">1</span><span>MacBook</span></button><span class="wizard-connector" aria-hidden="true"></span></li>
+    <li><button type="button" data-wizard-step="1" disabled aria-label="Step 2 of 3: Model"><span class="wizard-number" aria-hidden="true">2</span><span>Model</span></button><span class="wizard-connector" aria-hidden="true"></span></li>
+    <li><button type="button" data-wizard-step="2" disabled aria-label="Step 3 of 3: Download"><span class="wizard-number" aria-hidden="true">3</span><span>Download</span></button></li>
+  </ol>
+  <h2 id="compatibility-title" tabindex="-1">Which MacBook is yours?</h2>
+  <p id="compatibility-intro"></p>
+  <div id="compat-family-step" class="compat-panel">
+    <div class="compat-families">
+      <button type="button" data-family="MacBook Air"><strong>MacBook Air</strong></button>
+      <button type="button" data-family="MacBook Pro"><strong>MacBook Pro</strong></button>
+    </div>
+    <button type="button" class="compat-quiet" data-family="Other MacBooks">I have another MacBook</button>
+  </div>
+  <div id="compat-model-step" class="compat-panel" hidden>
+    <label for="compat-model">Model and year</label>
+    <select id="compat-model"></select>
+    <p class="compat-help">Apple menu → About This Mac</p>
+    <button type="button" class="button primary" id="compat-continue" disabled>Check my Mac</button>
+  </div>
+  <div id="compat-result-step" class="compat-panel" hidden>
+    <p id="compat-selected"></p>
+    <div id="compat-result-status" class="compat-result-status"></div>
+    <p id="compat-result-copy"></p>
+    <p id="compat-result-requirement"></p>
+    <a class="button primary" id="compatible-download" href="https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg">Download for Mac</a>
+    <a class="text-link" id="compat-source" href="https://github.com/IuCC123/BendMac" hidden>View the source on GitHub</a>
+  </div>
+  <button type="button" class="compat-quiet" id="compat-back" hidden>← Back</button>
+  <details class="compat-reference">
+    <summary>Full compatibility chart</summary>
+  <div class="compat-legend"><p><strong>Expected</strong> means Apple documents the sensor, but BendMac has not been verified on that model.</p><p><strong>Tested family*</strong> means the project reports an M5 MacBook Air test. The recorded result does not specify screen size, so it does not confirm both sizes.</p></div>
+  <p class="compat-find">Find your model in Apple menu → About This Mac. <span>Scroll the table to see every model.</span></p>
+  <div class="compat-table-wrap" role="region" aria-label="MacBook compatibility table, scroll for more models and columns" tabindex="0">
+  <table class="compat-table"><caption>MacBook compatibility · researched September 11, 2026</caption><thead><tr><th scope="col">MacBook / chip</th><th scope="col">Introduced</th><th scope="col">Automatic lid tracking</th><th scope="col">Hardware source</th></tr></thead>
+<tbody><tr class="compat-family"><th colspan="4" scope="rowgroup">MacBook Air</th></tr>
+<tr><th scope="row">13-inch / 15-inch<span>M5</span></th><td>2026</td><td><span class="compat-status tested">Tested family*</span></td><td><a href="https://support.apple.com/en-us/125721" target="_blank" rel="noopener noreferrer" aria-label="13-inch for MacBook Air 13-inch / 15-inch M5">13-inch</a> · <a href="https://support.apple.com/en-in/125764" target="_blank" rel="noopener noreferrer" aria-label="15-inch for MacBook Air 13-inch / 15-inch M5">15-inch</a></td></tr>
+<tr><th scope="row">13-inch<span>M4</span></th><td>2025</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-euro/122003" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Air 13-inch M4">Apple manual</a></td></tr>
+<tr><th scope="row">15-inch<span>M4</span></th><td>2025</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-euro/121977" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Air 15-inch M4">Apple manual</a></td></tr>
+<tr><th scope="row">13-inch<span>M3</span></th><td>2024</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-gb/119579" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Air 13-inch M3">Apple manual</a></td></tr>
+<tr><th scope="row">15-inch<span>M3</span></th><td>2024</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-gb/119580" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Air 15-inch M3">Apple manual</a></td></tr>
+<tr><th scope="row">15-inch<span>M2</span></th><td>2023</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-us/104029" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Air 15-inch M2">Apple manual</a></td></tr>
+<tr><th scope="row">13-inch<span>M2</span></th><td>2022</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-us/100603" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Air 13-inch M2">Apple manual</a></td></tr>
+<tr><th scope="row">13-inch<span>M1</span></th><td>2020</td><td><span class="compat-status limited">No lid tracking</span></td><td><a href="https://github.com/samhenrigold/LidAngleSensor#faq" target="_blank" rel="noopener noreferrer" aria-label="Sensor project for MacBook Air 13-inch M1">Sensor project</a></td></tr>
+</tbody>
+<tbody><tr class="compat-family"><th colspan="4" scope="rowgroup">MacBook Pro</th></tr>
+<tr><th scope="row">14-inch<span>M5 Pro / Max</span></th><td>2026</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-mz/125819" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 14-inch M5 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">16-inch<span>M5 Pro / Max</span></th><td>2026</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-am/125836" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 16-inch M5 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">14-inch<span>M5</span></th><td>2025</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-us/123173" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 14-inch M5">Apple manual</a></td></tr>
+<tr><th scope="row">14-inch<span>M4</span></th><td>2024</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-asia/120922" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 14-inch M4">Apple manual</a></td></tr>
+<tr><th scope="row">14-inch<span>M4 Pro / Max</span></th><td>2024</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-ca/121126" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 14-inch M4 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">16-inch<span>M4 Pro / Max</span></th><td>2024</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-la/121128" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 16-inch M4 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">14-inch<span>M3</span></th><td>Late 2023</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-us/118618" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 14-inch M3">Apple manual</a></td></tr>
+<tr><th scope="row">14-inch<span>M3 Pro / Max</span></th><td>Late 2023</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-gb/118617" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 14-inch M3 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">16-inch<span>M3 Pro / Max</span></th><td>Late 2023</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-gb/118619" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 16-inch M3 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">14-inch<span>M2 Pro / Max</span></th><td>Early 2023</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-la/102712" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 14-inch M2 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">16-inch<span>M2 Pro / Max</span></th><td>Early 2023</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-euro/103870" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 16-inch M2 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">13-inch · Touch Bar<span>M2</span></th><td>2022</td><td><span class="compat-status limited">No lid tracking</span></td><td><a href="https://github.com/samhenrigold/LidAngleSensor#faq" target="_blank" rel="noopener noreferrer" aria-label="Sensor project for MacBook Pro 13-inch · Touch Bar M2">Sensor project</a></td></tr>
+<tr><th scope="row">14-inch<span>M1 Pro / Max</span></th><td>2021</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-gb/100549" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 14-inch M1 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">16-inch<span>M1 Pro / Max</span></th><td>2021</td><td><span class="compat-status expected">Expected</span></td><td><a href="https://support.apple.com/en-mide/100568" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for MacBook Pro 16-inch M1 Pro / Max">Apple manual</a></td></tr>
+<tr><th scope="row">13-inch · Touch Bar<span>M1</span></th><td>2020</td><td><span class="compat-status limited">No lid tracking</span></td><td><a href="https://github.com/samhenrigold/LidAngleSensor#faq" target="_blank" rel="noopener noreferrer" aria-label="Sensor project for MacBook Pro 13-inch · Touch Bar M1">Sensor project</a></td></tr>
+</tbody>
+<tbody><tr class="compat-family"><th colspan="4" scope="rowgroup">Other MacBooks</th></tr>
+<tr><th scope="row">MacBook Neo · 13-inch<span>A18 Pro</span></th><td>2026</td><td><span class="compat-status limited">Unverified</span></td><td><a href="https://support.apple.com/en-us/126520" target="_blank" rel="noopener noreferrer" aria-label="Apple manual for Other MacBooks MacBook Neo · 13-inch A18 Pro">Apple manual</a></td></tr>
+<tr><th scope="row">MacBook Air · all Intel models<span>Intel</span></th><td>2008–2020</td><td><span class="compat-status limited">Build unsupported</span></td><td><a href="https://support.apple.com/en-us/102869" target="_blank" rel="noopener noreferrer" aria-label="Apple model list for Other MacBooks MacBook Air · all Intel models Intel">Apple model list</a></td></tr>
+<tr><th scope="row">MacBook Pro · all Intel models<span>Intel</span></th><td>2006–2020</td><td><span class="compat-status limited">Build unsupported</span></td><td><a href="https://support.apple.com/en-us/108052" target="_blank" rel="noopener noreferrer" aria-label="Apple model list for Other MacBooks MacBook Pro · all Intel models Intel">Apple model list</a></td></tr>
+<tr><th scope="row">MacBook · 12-inch and earlier<span>Intel</span></th><td>2006–2017</td><td><span class="compat-status limited">Build unsupported</span></td><td><a href="https://support.apple.com/en-us/103257" target="_blank" rel="noopener noreferrer" aria-label="Apple model list for Other MacBooks MacBook · 12-inch and earlier Intel">Apple model list</a></td></tr>
+</tbody></table></div>
+  <p class="compat-footnote"><strong>No lid tracking:</strong> the M1 Air and 13-inch M1/M2 Touch Bar Pro are known problematic models in the sensor project. The manual preview remains available on Apple silicon with macOS 14+.</p>
+  <p class="compat-footnote"><strong>MacBook Neo:</strong> its repair manual does not document a separate lid-angle sensor. BendMac support and manual preview are unverified; do not assume compatibility.</p>
+  <p class="compat-footnote"><strong>Intel:</strong> this BendMac build is unsupported, including the 2019 16-inch Pro even though it has a lid-angle sensor. <a href="https://github.com/IuCC123/BendMac#readme" target="_blank" rel="noopener noreferrer">BendMac requirements and test record</a>.</p>
+  </details>
+</dialog>
 </body>
 </html>

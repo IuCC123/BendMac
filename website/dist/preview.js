@@ -2,98 +2,72 @@
   const video = document.getElementById('preview');
   const canvas = document.getElementById('scrub-preview');
   const context = canvas.getContext('2d');
-  const slider = document.getElementById('lid');
-  const button = document.getElementById('play');
-  const label = document.getElementById('play-label');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const frames = new Image();
   const laptop = document.querySelector('.macbook');
-  let animationFrame = 0;
   const lid = laptop.querySelector('.lid-stage');
-  function alignPerspective() {
-    // The base image widens from 65% at the hinge to 86% at its front edge.
-    // Keep projection proportional to the device instead of the viewport.
-    laptop.style.perspective = `${laptop.clientWidth * 1.6}px`;
-    laptop.style.perspectiveOrigin = `50% ${lid.offsetHeight}px`;
-  }
-  new ResizeObserver(alignPerspective).observe(laptop);
-  alignPerspective();
-  function hinge(phase) {
-    const closure = Math.sin(phase * Math.PI / 2) ** 2;
+  let frame = 0, previous = 0, target = 0, progress = 0;
+  let start = 0, distance = 1, lastSprite = -1;
+
+  function paint() {
+    const closure = Math.sin(progress * Math.PI / 2) ** 2;
     laptop.style.setProperty('--lid-angle', `${-68 * closure}deg`);
     laptop.style.setProperty('--lid-shade', String(closure * .25));
-  }
-  function trackPlayback() {
-    if (manual) return;
-    const phase = Math.min(1, video.currentTime / 4.2);
-    const closure = phase <= .5 ? phase * 2 : (1 - phase) * 2;
-    hinge(closure);
-    slider.value = String(Math.round(closure * 100));
-    slider.setAttribute('aria-valuetext', `${slider.value}% closed`);
-    if (!video.paused) animationFrame = requestAnimationFrame(trackPlayback);
-  }
-  let manual = false;
-  let interacted = false;
-  let pendingPlay = false;
-  function state() {
-    const playing = !video.paused;
-    label.textContent = playing ? 'Pause' : 'Play the fold';
-    button.setAttribute('aria-label', playing ? 'Pause fold animation' : 'Play fold animation');
-    document.dispatchEvent(new CustomEvent('previewstate', { detail: { playing } }));
-  }
-  function draw() {
-    if (!frames.complete || !frames.naturalWidth) return;
-    const frame = Math.round(Number(slider.value) / 100 * 63);
-    context.drawImage(frames, (frame % 8) * 480, Math.floor(frame / 8) * 300,
+    if (!context || !frames.naturalWidth) return;
+    const sprite = Math.round(progress * 63);
+    if (sprite === lastSprite) return;
+    context.drawImage(frames, (sprite % 8) * 480, Math.floor(sprite / 8) * 300,
       480, 300, 0, 0, 480, 300);
+    lastSprite = sprite;
     canvas.hidden = false;
   }
-  frames.onload = () => { if (manual) draw(); };
-  frames.src = 'assets/fold-frames.jpg?v=8';
-  slider.addEventListener('input', () => {
-    interacted = true;
-    pendingPlay = false;
-    manual = true;
-    video.pause();
-    slider.setAttribute('aria-valuetext', `${slider.value}% closed`);
-    hinge(Number(slider.value) / 100);
-    draw();
-  });
-  function play() {
-    if (!Number.isFinite(video.duration)) { pendingPlay = true; video.load(); return; }
-    if (manual) video.currentTime = Number(slider.value) / 100 * 2.1;
-    else if (video.ended) video.currentTime = 0;
-    manual = false;
-    video.play().then(() => { canvas.hidden = true; }).catch(state);
+
+  function tick(now) {
+    frame = 0;
+    const delta = Math.min((now - previous) / 1000, .05);
+    previous = now;
+    progress += (target - progress) * (1 - Math.exp(-delta * 5));
+    if (Math.abs(target - progress) < .0005) progress = target;
+    paint();
+    if (progress !== target) frame = requestAnimationFrame(tick);
   }
-  button.addEventListener('click', () => {
-    interacted = true;
-    if (!video.paused) video.pause(); else play();
-  });
-  video.addEventListener('loadedmetadata', () => {
-    if (pendingPlay) { pendingPlay = false; play(); }
-  });
-  video.addEventListener('play', () => {
-    state();
-    cancelAnimationFrame(animationFrame);
-    trackPlayback();
-  });
-  video.addEventListener('pause', () => {
-    cancelAnimationFrame(animationFrame);
-    state();
-  });
-  video.addEventListener('seeked', () => {
-    if (!manual) { cancelAnimationFrame(animationFrame); trackPlayback(); }
-  });
-  video.addEventListener('ended', () => { hinge(0); slider.value = '0'; });
-  video.addEventListener('error', () => { label.textContent = 'Playback unavailable'; button.disabled = true; });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
-  reduced.addEventListener('change', () => { if (reduced.matches) video.pause(); });
-  const observer = new IntersectionObserver(entries => {
-    if (entries.some(entry => entry.isIntersecting)) {
-      if (!reduced.matches && !interacted) play();
-      observer.disconnect();
+
+  function update() {
+    target = reduced.matches ? 0 : Math.max(0, Math.min(1, (window.scrollY - start) / distance));
+    if (!frame && !document.hidden) {
+      previous = performance.now();
+      frame = requestAnimationFrame(tick);
     }
-  }, { threshold: .3 });
-  observer.observe(video);
+  }
+
+  function resize() {
+    laptop.style.perspective = `${laptop.clientWidth * 1.6}px`;
+    laptop.style.perspectiveOrigin = `50% ${lid.offsetHeight}px`;
+    // Start when the device enters the lower viewport; close as it approaches the top.
+    const top = laptop.getBoundingClientRect().top + window.scrollY;
+    start = Math.max(0, top - window.innerHeight * .7);
+    distance = Math.max(window.innerHeight * .65, lid.offsetHeight);
+    update();
+  }
+
+  frames.onload = paint;
+  frames.src = 'assets/fold-frames.jpg?v=8';
+  video.pause();
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', resize, { passive: true });
+  window.addEventListener('pageshow', resize);
+  new ResizeObserver(resize).observe(document.querySelector('.light-stage'));
+  reduced.addEventListener('change', () => {
+    if (reduced.matches) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      progress = target = 0;
+      paint();
+    } else update();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { cancelAnimationFrame(frame); frame = 0; }
+    else update();
+  });
+  resize();
 })();
