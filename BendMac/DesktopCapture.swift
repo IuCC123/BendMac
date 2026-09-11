@@ -1,12 +1,21 @@
 import CoreMedia
 import ScreenCaptureKit
 
+enum CaptureError: LocalizedError {
+    case applicationUnavailable
+
+    var errorDescription: String? {
+        "BendMac could not safely exclude its own windows from screen capture. Try enabling it again."
+    }
+}
+
 final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
     let frames: FrameStore
     @MainActor private var stream: SCStream?
     @MainActor private var config: SCStreamConfiguration?
     private let queue = DispatchQueue(label: "local.jamie.BendMac.capture", qos: .userInteractive)
-    var onError: ((String) -> Void)?
+    var onError: ((Error) -> Void)?
+    var onFirstFrame: (() -> Void)?
     private let countLock = NSLock()
     private var count = 0
     private var outputStream: SCStream?
@@ -23,13 +32,16 @@ final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
     @MainActor func start(displayID: CGDirectDisplayID) async throws {
         generation += 1
         let request = generation
-        let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
+        let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
         guard request == generation else { throw CancellationError() }
         guard let display = content.displays.first(where: { $0.displayID == displayID }) else {
             throw NSError(domain: "The built-in display is unavailable.", code: 1)
         }
         let ownApp = content.applications.filter { $0.processID == ProcessInfo.processInfo.processIdentifier }
-        // Exclude our entire process to prevent recursive capture of the overlay and settings.
+        // A login launch may have no on-screen windows. Never start an unfiltered
+        // stream if ScreenCaptureKit has not discovered this process yet.
+        guard !ownApp.isEmpty else { throw CaptureError.applicationUnavailable }
+        // Exclude our entire process, including windows shown after capture starts.
         let filter = SCContentFilter(display: display, excludingApplications: ownApp, exceptingWindows: [])
         let config = SCStreamConfiguration()
         // Use the display mode's backing resolution for Retina capture.
@@ -70,10 +82,13 @@ final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
         while let stream, let config {
             let requested = desiredBending
             config.minimumFrameInterval = CMTime(value: 1, timescale: requested ? 60 : 5)
-            do { try await stream.updateConfiguration(config) }
-            catch {
-                if self.stream === stream { onError?(error.localizedDescription) }
-                return
+            do { try await stream.updateConfiguration(config) } catch {
+                if self.stream === stream {
+                    onError?(error)
+                    return
+                }
+                // An obsolete stream must not discard a newer stream's pending rate change.
+                continue
             }
             if self.stream === stream && requested == desiredBending { return }
         }
@@ -95,7 +110,7 @@ final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
     func stream(_ stream: SCStream, didStopWithError error: Error) {
         Task { @MainActor [weak self] in
             guard let self, self.stream === stream else { return }
-            self.onError?(error.localizedDescription)
+            self.onError?(error)
         }
     }
     func stream(
@@ -111,7 +126,14 @@ final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
         countLock.lock()
         defer { countLock.unlock() }
         guard outputStream === stream else { return }
-        frames.put(pixelBuffer)
+        let firstFrame = frames.get() == nil
+        frames.put(pixelBuffer, displayTime: attachments.first?[.displayTime] as? UInt64 ?? 0)
+        if firstFrame {
+            Task { @MainActor [weak self] in
+                guard let self, self.stream === stream else { return }
+                self.onFirstFrame?()
+            }
+        }
         count += 1
     }
 }

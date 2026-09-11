@@ -1,7 +1,7 @@
 #include <metal_stdlib>
 using namespace metal;
 struct VertexOut { float4 position [[position]]; float2 uv; };
-struct Params { float progress; float perspective; float blur; float shadow; float aspect; float style; float protectedTop; float pad2; };
+struct Params { float progress; float perspective; float blur; float shadow; float style; };
 vertex VertexOut bendVertex(uint id [[vertex_id]]) {
     float2 p[3] = {float2(-1,-1), float2(3,-1), float2(-1,3)};
     VertexOut out; out.position=float4(p[id],0,1); out.uv=float2((p[id].x+1)*0.5,(1-p[id].y)*0.5); return out;

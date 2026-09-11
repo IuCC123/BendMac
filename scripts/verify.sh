@@ -3,8 +3,9 @@ set -euo pipefail
 cd "${0:A:h}/.."
 verification_binary=$(mktemp -t bendmac-tests)
 trap 'rm -f "$verification_binary"' EXIT
-xcrun swiftc BendMac/BendMath.swift Tests/main.swift -o "$verification_binary"
+xcrun swiftc -sdk "$(xcrun --sdk macosx --show-sdk-path)" BendMac/BendMath.swift Tests/main.swift -o "$verification_binary"
 "$verification_binary"
+./scripts/verify-lifecycle.sh
 app_path="$PWD/build/Build/Products/Release/BendMac.app"
 codesign --verify --deep --strict "$app_path"
 "$app_path/Contents/MacOS/BendMac" --sensor-check

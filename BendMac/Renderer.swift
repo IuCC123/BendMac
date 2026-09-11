@@ -8,18 +8,17 @@ struct BendParameters {
     var perspective: Float = 1
     var blur: Float = 0.9
     var shadow: Float = 0.35
-    var aspect: Float = 1.6
     var style: Float = 0
-    var protectedTop: Float = 0
-    var pad2: Float = 0
 }
 
 final class FrameStore {
     private let lock = NSLock()
     private var latest: CVPixelBuffer?
-    func put(_ frame: CVPixelBuffer) {
+    private var displayTime: UInt64 = 0
+    func put(_ frame: CVPixelBuffer, displayTime: UInt64 = 0) {
         lock.lock()
         latest = frame
+        self.displayTime = displayTime
         lock.unlock()
     }
     func get() -> CVPixelBuffer? {
@@ -27,10 +26,33 @@ final class FrameStore {
         defer { lock.unlock() }
         return latest
     }
+    /// ScreenCaptureKit display times and mach_absolute_time share the same clock.
+    func get(after time: UInt64) -> CVPixelBuffer? {
+        lock.lock()
+        defer { lock.unlock() }
+        return displayTime > time ? latest : nil
+    }
     func clear() {
         lock.lock()
         latest = nil
+        displayTime = 0
         lock.unlock()
+    }
+}
+
+private enum RenderError: LocalizedError {
+    case allocation(String)
+    case encoding
+    case incompleteCommand
+    case imageRepresentation(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .allocation(let resource): return "Could not allocate \(resource) for rendering."
+        case .encoding: return "Could not create the preview render encoder."
+        case .incompleteCommand: return "The preview GPU command did not complete successfully."
+        case .imageRepresentation(let format): return "Could not create the preview \(format)."
+        }
     }
 }
 
@@ -105,9 +127,16 @@ final class BendRenderer: NSObject, MTKViewDelegate {
             if let retained, let live = CVMetalTextureGetTexture(retained) { texture = live }
         }
         var p = MainActor.assumeIsolated { parameters() }
-        p.aspect = Float(view.drawableSize.width / max(1, view.drawableSize.height))
-        let blurred = p.progress < 0.0001 ? [texture, texture, texture, texture] : encodeBlur(texture, command: command, strength: p.blur)
-        guard let encoder = command.makeRenderCommandEncoder(descriptor: pass) else { return }
+        // The live effect can omit blur under memory pressure; offline QA must report failure.
+        let unblurred = [texture, texture, texture, texture]
+        let blurred =
+            p.progress < 0.0001
+            ? unblurred
+            : (try? encodeBlur(texture, command: command, strength: p.blur)) ?? unblurred
+        guard let encoder = command.makeRenderCommandEncoder(descriptor: pass) else {
+            blurredSource = nil
+            return
+        }
         encoder.setRenderPipelineState(pipeline)
         encoder.setFragmentTexture(texture, index: 0)
         for (i, t) in blurred.enumerated() { encoder.setFragmentTexture(t, index: i + 1) }
@@ -120,14 +149,15 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         command.addCompletedHandler { _ in withExtendedLifetime(held) {} }
         command.commit()
     }
-    private func encodeBlur(_ source: MTLTexture, command: MTLCommandBuffer, strength: Float) -> [MTLTexture]
+    private func encodeBlur(_ source: MTLTexture, command: MTLCommandBuffer, strength: Float) throws
+        -> [MTLTexture]
     {
         if strength < 0.001 { return [source, source, source, source] }
         // Cap the blur working resolution independently of the Retina capture.
         // Sigma scales with this width to preserve the intended blur radius.
         let w = max(1, min(source.width / 4, 480))
         let h = max(1, source.height * w / source.width)
-        if blurTextures.first?.width != w || blurTextures.first?.height != h {
+        if blurTextures.count != 5 || blurTextures.first?.width != w || blurTextures.first?.height != h {
             let descriptor = MTLTextureDescriptor.texture2DDescriptor(
                 pixelFormat: .rgba8Unorm, width: w, height: h, mipmapped: false)
             descriptor.usage = [.shaderRead, .shaderWrite]
@@ -136,7 +166,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
             blurStrength = -1
             blurredSource = nil
         }
-        guard blurTextures.count == 5 else { return [source, source, source, source] }
+        guard blurTextures.count == 5 else { throw RenderError.allocation("blur textures") }
         if abs(blurStrength - strength) > 0.001 {
             blurredSource = nil
             blurKernels = [4.0, 10.0, 28.0, 64.0].map {
@@ -169,17 +199,26 @@ final class BendRenderer: NSObject, MTKViewDelegate {
             pixelFormat: .bgra8Unorm, width: w, height: h, mipmapped: false)
         td.usage = [.renderTarget, .shaderRead]
         td.storageMode = .shared
-        guard let texture = device.makeTexture(descriptor: td), let command = queue.makeCommandBuffer() else {
-            return
+        guard let texture = device.makeTexture(descriptor: td) else {
+            throw RenderError.allocation("the preview texture")
         }
+        guard let command = queue.makeCommandBuffer() else {
+            throw RenderError.allocation("the preview command buffer")
+        }
+        var completed = false
+        defer { if !completed { blurredSource = nil } }
         let pass = MTLRenderPassDescriptor()
         pass.colorAttachments[0].texture = texture
         pass.colorAttachments[0].loadAction = .clear
         pass.colorAttachments[0].storeAction = .store
-        let blurred = encodeBlur(fallback, command: command, strength: p.blur)
-        guard let encoder = command.makeRenderCommandEncoder(descriptor: pass) else { return }
+        let blurred =
+            p.progress < 0.0001
+            ? [fallback, fallback, fallback, fallback]
+            : try encodeBlur(fallback, command: command, strength: p.blur)
+        guard let encoder = command.makeRenderCommandEncoder(descriptor: pass) else {
+            throw RenderError.encoding
+        }
         var params = p
-        params.aspect = Float(w) / Float(h)
         encoder.setRenderPipelineState(pipeline)
         encoder.setFragmentTexture(fallback, index: 0)
         for (i, t) in blurred.enumerated() { encoder.setFragmentTexture(t, index: i + 1) }
@@ -189,16 +228,26 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         command.commit()
         command.waitUntilCompleted()
         if let error = command.error { throw error }
+        guard command.status == .completed else { throw RenderError.incompleteCommand }
         var pixels = [UInt8](repeating: 0, count: w * h * 4)
         texture.getBytes(&pixels, bytesPerRow: w * 4, from: MTLRegionMake2D(0, 0, w, h), mipmapLevel: 0)
         let data = Data(pixels)
-        let cg = CGImage(
-            width: w, height: h, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: w * 4,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue).union(
-                .byteOrder32Little), provider: CGDataProvider(data: data as CFData)!, decode: nil,
-            shouldInterpolate: true, intent: .defaultIntent)!
-        try NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:])!.write(to: url)
+        guard let provider = CGDataProvider(data: data as CFData) else {
+            throw RenderError.imageRepresentation("pixel data provider")
+        }
+        guard
+            let cg = CGImage(
+                width: w, height: h, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: w * 4,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue).union(
+                    .byteOrder32Little), provider: provider, decode: nil,
+                shouldInterpolate: true, intent: .defaultIntent)
+        else { throw RenderError.imageRepresentation("CGImage") }
+        guard let png = NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:]) else {
+            throw RenderError.imageRepresentation("PNG")
+        }
+        try png.write(to: url, options: .atomic)
+        completed = true
     }
     static func previewImage() -> CGImage {
         let size = NSSize(width: 1280, height: 800)

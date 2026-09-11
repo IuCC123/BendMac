@@ -24,7 +24,7 @@ Adjust the style, blur, perspective, and shadow in Appearance. The preview works
 
 Press **Escape** to pause the effect. Close the settings window to leave BendMac running, or quit from the menu bar. Only the built-in display is affected.
 
-Turn on **General → Open at login** to start BendMac with your Mac. If the effect was on when you quit, it comes back on by itself.
+Turn on **General → Open at login** to start BendMac with your Mac. If the effect was on when you quit, it comes back on by itself with the same Follow lid setting and manual angle. Temporary capture failures are retried; missing sensor or display readiness can recover when the device becomes available.
 
 Use **Check for updates** to install future versions in the app. If you're on 0.4.0 or earlier, download the current version manually first.
 
@@ -42,7 +42,7 @@ With XcodeGen installed:
 
 The app is written to `build/Build/Products/Release/BendMac.app`. Run `./scripts/dmg.sh` to package a DMG.
 
-`./scripts/verify.sh` checks the motion math, signature, sensor, and Metal rendering. It needs a Mac; FFmpeg is optional for exporting the preview video.
+`./scripts/verify.sh` checks lifecycle recovery, saved settings, idle animation timers, motion math, signature, sensor, and Metal rendering. It needs a Mac; FFmpeg is optional for exporting the preview video.
 
 ## Contributing
 

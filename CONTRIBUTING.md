@@ -11,7 +11,7 @@ Open an issue with your MacBook model, macOS version, BendMac version, and steps
 1. Fork the repository and create a branch.
 2. Open `BendMac.xcodeproj` in Xcode or use `scripts/build.sh`.
 3. Keep the change focused and explain what it fixes. Format Swift files with `xcrun swift-format format --in-place --recursive BendMac Tests scripts`.
-4. Run `scripts/verify.sh` for animation or sensor changes. Test on a real Mac when possible and say what you could not verify.
+4. Run `scripts/verify.sh` for animation, lifecycle, or sensor changes. This includes `scripts/verify-lifecycle.sh`, which tests the real app model with controlled sensor/capture failures and isolated preferences, without displaying an overlay. For capture or startup changes, also run `scripts/verify-capture.sh` on a logged-in Mac with Screen Recording permission. This briefly displays a magenta test square. It checks safe startup without visible windows and verifies that a colored overlay stays out of captured frames across reconnects; it saves no screen content. For full effect lifecycle changes, run `scripts/verify-live-effect.sh` after building: it briefly bends and clears the desktop three times using isolated settings, and checks that pausing clears frames and stops the model timer. Test on a real Mac when possible and say what you could not verify.
 5. Open a pull request with the relevant validation results.
 
 ## Design and implementation

@@ -8,6 +8,10 @@ final class LidSensor {
     private var device: IOHIDDevice?
     private var timer: DispatchSourceTimer?
     private let queue = DispatchQueue(label: "local.jamie.BendMac.lid", qos: .userInteractive)
+    enum PollingMode { case idle, watching, active }
+    private var mode: PollingMode = .idle
+    private var suspended = false
+    private var lastDiscovery = Date.distantPast
     var onAngle: ((Double?) -> Void)?
 
     init() {
@@ -37,26 +41,43 @@ final class LidSensor {
         timer.schedule(deadline: .now(), repeating: .milliseconds(250), leeway: .milliseconds(10))
         timer.setEventHandler { [weak self] in
             guard let self else { return }
-            let angle = self.read()
+            var angle = self.read()
+            // Devices can appear after login or disappear during sleep. Keep discovery alive
+            // even after the app's bounded capture retry loop has stopped.
+            if angle == nil && Date().timeIntervalSince(self.lastDiscovery) >= 1 {
+                self.findDevice()
+                angle = self.read()
+            }
             DispatchQueue.main.async { [weak self] in self?.onAngle?(angle) }
         }
         self.timer = timer
         timer.resume()
     }
-    func reconnect() {
-        queue.async { [weak self] in
-            guard let self else { return }
-            if let device = self.device { IOHIDDeviceClose(device, 0) }
-            self.device = nil
-            if let devices = IOHIDManagerCopyDevices(self.manager) as? Set<IOHIDDevice> {
-                self.device = devices.first { IOHIDDeviceOpen($0, 0) == kIOReturnSuccess }
-            }
+    private func findDevice() {
+        lastDiscovery = Date()
+        if let device { IOHIDDeviceClose(device, 0) }
+        device = nil
+        if let devices = IOHIDManagerCopyDevices(manager) as? Set<IOHIDDevice> {
+            device = devices.first { IOHIDDeviceOpen($0, 0) == kIOReturnSuccess }
         }
     }
-    func setActive(_ active: Bool) {
+    func reconnect() {
+        queue.async { [weak self] in self?.findDevice() }
+    }
+    func setMode(_ mode: PollingMode) {
+        guard self.mode != mode else { return }
+        self.mode = mode
+        updateSchedule()
+    }
+    func setSuspended(_ suspended: Bool) {
+        self.suspended = suspended
+        updateSchedule()
+    }
+    private func updateSchedule() {
+        let milliseconds = mode == .active ? 16 : mode == .watching ? 100 : 250
         timer?.schedule(
-            deadline: .now(), repeating: .milliseconds(active ? 16 : 250),
-            leeway: .milliseconds(active ? 2 : 10))
+            deadline: suspended ? .distantFuture : .now(), repeating: .milliseconds(milliseconds),
+            leeway: .milliseconds(mode == .active ? 2 : 10))
     }
     deinit {
         timer?.cancel()
