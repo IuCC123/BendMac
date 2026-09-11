@@ -3,6 +3,24 @@
     <channel>
         <title>BendMac</title>
         <item>
+            <title>0.4.7</title>
+            <pubDate>Fri, 11 Sep 2026 09:30:58 +0200</pubDate>
+            <sparkle:version>11</sparkle:version>
+            <sparkle:shortVersionString>0.4.7</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[<p>BendMac now opens its settings when you launch it from Spotlight or Raycast, even if it's already running in the menu bar. Closed and minimized windows come back too.</p>
+<ul>
+<li>A stronger fold that keeps the bottom edge at the hinge and includes the menu bar.</li>
+<li>A translucent sidebar with Liquid Glass selection on macOS 26 and newer.</li>
+<li>A MacBook preview with playback controls and a live lid-angle option.</li>
+<li>Set the clear angle from your current lid position. Resetting appearance keeps your calibration.</li>
+<li>Retina desktop capture, Open at login, and a retry button for capture connections.</li>
+</ul>
+]]></description>
+            <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.7/BendMac-macOS.zip" length="2594197" type="application/octet-stream" sparkle:edSignature="jjG8wisZzuBoyHWuoFm1GuZw+N51kM+PUMOhnvMF7dUaYPlP/8ffanGgBKSxCEXemtaT4pqc/5gGjQTnb23cAQ=="/>
+        </item>
+        <item>
             <title>0.4.6</title>
             <pubDate>Thu, 10 Sep 2026 21:43:30 +0200</pubDate>
             <sparkle:version>10</sparkle:version>
@@ -19,15 +37,6 @@
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
             <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.5/BendMac-macOS.zip" length="2567788" type="application/octet-stream" sparkle:edSignature="4jCGCZ2pH228BSOVTdqNhLvtBp4bFyiOW0FmAw3uqTSarZqFqohLpX/Vk6JX7gYF//HJKnkclU1f+SLjiKsaCA=="/>
-        </item>
-        <item>
-            <title>0.4.4</title>
-            <pubDate>Thu, 10 Sep 2026 19:14:42 +0200</pubDate>
-            <sparkle:version>8</sparkle:version>
-            <sparkle:shortVersionString>0.4.4</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.4/BendMac-macOS.zip" length="2555189" type="application/octet-stream" sparkle:edSignature="9PO9yF5YmYzKK4OV5WhLtdNmZVTWQ8wSAhUCKYMvhSigv3piCHqVhrJw490IUoDL25iR3oFoAYoFn3LieOOWBQ=="/>
         </item>
     </channel>
 </rss>
