@@ -44,6 +44,8 @@ The app is written to `build/Build/Products/Release/BendMac.app`. Run `./scripts
 
 `./scripts/verify.sh` checks lifecycle recovery, saved settings, idle animation timers, motion math, signature, sensor, and Metal rendering. It needs a Mac; FFmpeg is optional for exporting the preview video.
 
+See the [changelog](CHANGELOG.md) for release details.
+
 ## Contributing
 
 [Issues](https://github.com/IuCC123/BendMac/issues) and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and [release instructions](docs/releases.md) for packaging and update signing.

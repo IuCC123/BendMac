@@ -49,8 +49,8 @@ targets:
         INFOPLIST_KEY_NSHumanReadableCopyright: 'Copyright 2026 BendMac contributors. MIT License.'
         INFOPLIST_KEY_CFBundleDisplayName: BendMac
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
-        MARKETING_VERSION: '0.4.7'
-        CURRENT_PROJECT_VERSION: '11'
+        MARKETING_VERSION: '0.4.8'
+        CURRENT_PROJECT_VERSION: '12'
     dependencies:
       - package: Sparkle
       - sdk: AppKit.framework
