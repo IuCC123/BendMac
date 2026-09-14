@@ -14,7 +14,7 @@ Requires **macOS 14+** and an **Apple silicon MacBook with a lid-angle sensor**.
 
 1. Open the DMG and drag BendMac into Applications.
 2. Open BendMac and turn on **General → Enable BendMac**.
-3. Grant access in **System Settings → Privacy & Security → Screen & System Audio Recording**.
+3. When you first bend the desktop, grant access in **System Settings → Privacy & Security → Screen & System Audio Recording**.
 
 BendMac isn't notarized yet. You may need to approve it in Privacy & Security the first time you open it.
 
@@ -27,6 +27,8 @@ Press **Escape** to pause the effect. Close the settings window to leave BendMac
 Turn on **General → Open at login** to start BendMac with your Mac. If the effect was on when you quit, it comes back on by itself with the same Follow lid setting and manual angle. Temporary capture failures are retried; missing sensor or display readiness can recover when the device becomes available.
 
 Use **Check for updates** to install future versions in the app. If you're on 0.4.0 or earlier, download the current version manually first.
+
+Screen capture runs only while the desktop is bending. Once the effect clears, BendMac releases capture and removes its overlay so it does not keep interfering with video playback or system panels. If your usual lid position still shows an effect, use **Lid Behavior → Use current angle** to set where it clears. Protected video cannot be included in the fold; pause BendMac while watching if needed.
 
 Screen frames stay in memory. Nothing is recorded to disk or uploaded, and audio isn't captured. Update checks contact GitHub to look for new releases.
 

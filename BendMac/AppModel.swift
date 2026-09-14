@@ -225,15 +225,35 @@ final class OverlayWindow: NSPanel {
     func enable() {
         needsUserAction = false
         wantsEnabled = true
+        if ProcessInfo.processInfo.arguments.contains("--smoke") { beginSmokeTest() }
         scheduleReconnect(immediate: true)
+    }
+
+    // Match the visibility threshold so imperceptible lid jitter never starts capture.
+    private var targetProgress: Double {
+        let angle = followLid ? (sensorAngle ?? clearAngle) : manualAngle
+        let target = BendMath.progress(angle: angle, clearAngle: clearAngle)
+        return target > 0.0005 ? target : 0
+    }
+
+    private var readyStatus: String {
+        "Ready. Screen capture is off until the desktop bends."
     }
 
     private func inputChanged() {
         guard !restoringPreferences else { return }
         if followLid && sensorAngle == nil && (enabled || starting) {
             interrupt(message: "Waiting for the lid sensor… Turn off Follow lid to use a manual angle.")
+        } else if starting && targetProgress == 0 {
+            // Opening during SCStream startup must drain that attempt before another can begin.
+            stopEffect(message: readyStatus, preserveIntent: true, keepReady: true)
         } else if enabled {
-            startTicking()
+            if overlay != nil {
+                startTicking()
+            } else {
+                sensor.setMode(followLid ? .watching : .idle)
+                scheduleReconnect(immediate: true)
+            }
         } else if wantsEnabled {
             scheduleReconnect(immediate: true)
         }
@@ -271,7 +291,18 @@ final class OverlayWindow: NSPanel {
             status = "Connect the built-in display to use the desktop effect."
             return .retry
         }
+        // Enabling arms the lid sensor. An open desktop must have no capture session:
+        // even a hidden, low-frame-rate stream can blank protected video in other apps.
+        guard targetProgress > 0 else {
+            enabled = true
+            starting = false
+            sensor.setMode(followLid ? .watching : .idle)
+            status = readyStatus
+            return .connected
+        }
+        enabled = false
         starting = true
+        sensor.setMode(followLid ? .active : .idle)
         status = "Connecting to your desktop…"
         var captureAttempted = false
         do {
@@ -306,7 +337,6 @@ final class OverlayWindow: NSPanel {
                 followLid
                 ? "Live desktop connected. Close the lid gently to bend it."
                 : "Live desktop connected. Use the manual angle to bend it."
-            if ProcessInfo.processInfo.arguments.contains("--smoke") { beginSmokeTest() }
             return .connected
         } catch {
             guard generation == request, !Task.isCancelled else { return .needsAttention }
@@ -329,7 +359,8 @@ final class OverlayWindow: NSPanel {
         disable(message: message, preserveIntent: true)
     }
     private func scheduleReconnect(immediate: Bool = false) {
-        guard reconnectTask == nil, wantsEnabled, !enabled, !starting, !stopping, !sleeping, !needsUserAction
+        guard reconnectTask == nil, wantsEnabled, !enabled || (overlay == nil && targetProgress > 0),
+            !starting, !stopping, !sleeping, !needsUserAction
         else { return }
         generation += 1
         let request = generation
@@ -370,15 +401,18 @@ final class OverlayWindow: NSPanel {
         }
     }
     func disable(message: String = "Paused. Your desktop is back to normal.", preserveIntent: Bool = false) {
+        stopEffect(message: message, preserveIntent: preserveIntent, keepReady: false)
+    }
+    private func stopEffect(message: String, preserveIntent: Bool, keepReady: Bool) {
         if !preserveIntent { wantsEnabled = false }
         let pendingConnection = reconnectTask
         pendingConnection?.cancel()
         reconnectTask = nil
         generation += 1
-        enabled = false
+        enabled = keepReady
         progress = 0
         wasFolded = false
-        sensor.setMode(.idle)
+        sensor.setMode(keepReady && followLid ? .watching : .idle)
         clearOverlay()
         if !previewPlaying { stopTicking() }
         status = message
@@ -390,7 +424,7 @@ final class OverlayWindow: NSPanel {
             await pendingConnection?.value
             stopping = false
             starting = false
-            scheduleReconnect()
+            scheduleReconnect(immediate: enabled)
         }
     }
     func playPreview() {
@@ -430,12 +464,11 @@ final class OverlayWindow: NSPanel {
                 previewAngle = clearAngle - (clearAngle - 18) * pow(sin(t * .pi), 2)
             }
         }
-        guard enabled else {
+        guard enabled, overlay != nil else {
             if !previewPlaying { stopTicking() }
             return
         }
-        let angle = followLid ? (sensorAngle ?? clearAngle) : manualAngle
-        let target = BendMath.progress(angle: angle, clearAngle: clearAngle)
+        let target = targetProgress
         progress =
             NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
             ? target : BendMath.smooth(current: progress, target: target, dt: dt)
@@ -459,9 +492,13 @@ final class OverlayWindow: NSPanel {
         }
         if !previewPlaying && progress == target { stopTicking() }
         if progress > 0.15 { wasFolded = true }
-        if progress == 0 && wasFolded {
+        if target == 0 && progress <= 0.0005 && wasFolded {
             wasFolded = false
             if sound { NSSound(named: "Tink")?.play() }
+        }
+        if target == 0 && progress <= 0.0005 {
+            // Hiding the overlay or lowering FPS is insufficient: release SCStream too.
+            stopEffect(message: readyStatus, preserveIntent: true, keepReady: true)
         }
     }
     private func beginSmokeTest() {

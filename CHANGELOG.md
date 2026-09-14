@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.9](https://github.com/IuCC123/BendMac/releases/tag/v0.4.9) - 2026-09-14
+
+BendMac now stops screen capture when the desktop fold clears. Previously, capture kept running in the background even with the effect hidden, which could interfere with protected video playback such as Apple TV.
+
+- Remove the overlay and release screen capture when the desktop is open. The lid sensor stays ready for the next fold.
+- Cancel capture startup if the lid opens before it finishes, and wait for the old session to stop before starting another fold.
+- Ignore tiny lid movements near the clear angle so they do not start an invisible capture session.
+
+Protected video still cannot appear inside an active fold. If your normal lid position shows an effect, use **Lid Behavior → Use current angle**, or pause BendMac while watching.
+
+This release addresses the idle-capture problem reported in #8. Apple TV playback and Notification Center on the reporter's M4 Pro still need direct verification.
+
 ## [0.4.8](https://github.com/IuCC123/BendMac/releases/tag/v0.4.8) - 2026-09-11
 
 BendMac 0.4.8 improves startup and recovery, remembers manual controls, and reduces background work when the desktop is not bending.

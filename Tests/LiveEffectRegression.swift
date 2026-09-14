@@ -15,8 +15,8 @@ import AppKit
                 model.manualAngle = 115
                 for cycle in 1...3 {
                     model.enable()
-                    try await wait("Live capture did not start: \(model.status)") {
-                        model.enabled && model.frames.get() != nil
+                    try await wait("Effect did not become ready: \(model.status)") {
+                        model.enabled && model.overlay == nil && model.frames.get() == nil
                     }
                     model.manualAngle = 65
                     try await wait("Effect did not become visible") {
@@ -24,8 +24,8 @@ import AppKit
                     }
                     model.manualAngle = 115
                     try await wait("Opening did not hide the effect and stop its timer") {
-                        model.overlay?.isVisible == false && model.parameters().progress == 0
-                            && !timerRunning(model)
+                        model.overlay == nil && model.frames.get() == nil
+                            && model.parameters().progress == 0 && model.enabled && !timerRunning(model)
                     }
                     model.disable()
                     try await wait("Pause did not clear captured frames") {

@@ -37,6 +37,9 @@ final class LidSensor {
     var holdStart = false
     var heldStart: CheckedContinuation<Void, Never>?
     var generation = 0
+    var running = false
+    var holdStop = false
+    var heldStop: CheckedContinuation<Void, Never>?
     var frameCount: Int { 0 }
     init(frames: FrameStore) {}
     func start(displayID: CGDirectDisplayID) async throws {
@@ -53,8 +56,16 @@ final class LidSensor {
         }
         guard request == generation else { throw CancellationError() }
         if !failures.isEmpty { throw failures.removeFirst() }
+        running = true
     }
-    func stop() async { generation += 1 }
+    func stop() async {
+        generation += 1
+        if holdStop {
+            holdStop = false
+            await withCheckedContinuation { heldStop = $0 }
+        }
+        running = false
+    }
     func setBending(_ active: Bool) async {}
 }
 
@@ -91,8 +102,23 @@ final class LidSensor {
         let transient = NSError(domain: SCStreamErrorDomain, code: SCStreamError.Code.failedToStart.rawValue)
         model.capture.failures = [transient, transient]
         model.enable()
-        await wait("Transient asynchronous failures must retry through success") { model.enabled }
+        await wait("Enabling with an open desktop must arm the effect") { model.enabled }
+        check(
+            model.capture.attempts == 0 && model.overlay == nil,
+            "Open desktop must not start capture or create an overlay")
+        model.manualAngle = 104.5
+        try? await Task.sleep(for: .milliseconds(100))
+        check(model.capture.attempts == 0, "Imperceptible lid movement must not start capture")
+        model.manualAngle = 42
+        await wait("Transient asynchronous failures must retry through success") {
+            model.capture.running && !model.starting
+        }
         check(model.capture.attempts == 3, "Expected three complete connection attempts")
+        model.manualAngle = 115
+        await wait("Opening must release the capture session and overlay") {
+            !model.capture.running && model.overlay == nil
+        }
+        check(model.enabled && model.wantsEnabled, "Opening must keep the effect armed")
         await wait("Open manual mode must stop its model timer") { !timerRunning(model) }
         check(model.sensor.mode == .idle, "Manual mode must not poll sensor at 60 Hz")
         print("PASS: asynchronous startup retries, idle model timer, manual sensor polling")
@@ -105,7 +131,8 @@ final class LidSensor {
         check(timerRunning(model), "First frame must wake an animation that settled before capture delivered")
         model.manualAngle = 115
         await wait("Opening must settle at zero and stop ticking") {
-            model.parameters().progress == 0 && !timerRunning(model)
+            model.parameters().progress == 0 && !timerRunning(model) && !model.capture.running
+                && model.overlay == nil
         }
         model.followLid = true
         await wait("Missing sensor must pause capture") { !model.enabled && !model.starting }
@@ -120,7 +147,8 @@ final class LidSensor {
         }
         model.sensor.onAngle?(120)
         await wait("Open lid must restore reduced polling and settle") {
-            !timerRunning(model) && model.sensor.mode == .watching
+            !timerRunning(model) && model.sensor.mode == .watching && !model.capture.running
+                && model.overlay == nil
         }
         print(
             "PASS: manual/lid input resumes animation, sensor arrival resumes pending enable, adaptive polling"
@@ -130,6 +158,7 @@ final class LidSensor {
         await wait("Disable must complete") { !model.starting }
         try? await Task.sleep(for: .milliseconds(100))
         model.followLid = false
+        model.manualAngle = 42
         model.capture.holdStart = true
         model.enable()
         await wait("Test must reach suspended asynchronous start") { model.capture.heldStart != nil }
@@ -142,9 +171,43 @@ final class LidSensor {
             "New start must wait for canceled startup to drain")
         model.capture.heldStart?.resume()
         model.capture.heldStart = nil
-        await wait("Re-enable during teardown must eventually connect") { model.enabled }
+        await wait("Re-enable during teardown must eventually connect") {
+            model.enabled && model.capture.running
+        }
         check(model.capture.maxActiveStarts == 1, "Capture starts must never overlap")
         print("PASS: canceled startup drains, rapid disable/enable preserves latest intent")
+
+        model.capture.holdStop = true
+        model.manualAngle = 115
+        await wait("Opening must reach asynchronous stop") { model.capture.heldStop != nil }
+        let beforeClosingAgain = model.capture.attempts
+        model.manualAngle = 42
+        try? await Task.sleep(for: .milliseconds(100))
+        check(model.capture.attempts == beforeClosingAgain, "Rebending must wait for capture teardown")
+        model.capture.heldStop?.resume()
+        model.capture.heldStop = nil
+        await wait("Rebending after teardown must reconnect") {
+            model.capture.running && model.capture.attempts == beforeClosingAgain + 1
+        }
+        model.manualAngle = 115
+        await wait("Opening again must stop capture") { !model.capture.running }
+        try? await Task.sleep(for: .milliseconds(100))
+        model.capture.holdStart = true
+        model.manualAngle = 42
+        await wait("Bending must reach held startup") { model.capture.heldStart != nil }
+        model.manualAngle = 115
+        check(model.overlay == nil && model.enabled, "Opening during startup must hide and stay armed")
+        model.capture.heldStart?.resume()
+        model.capture.heldStart = nil
+        await wait("Canceled startup must drain") { !model.starting && model.capture.activeStarts == 0 }
+        let afterCanceledStart = model.capture.attempts
+        try? await Task.sleep(for: .milliseconds(1200))
+        check(
+            !model.capture.running && model.capture.attempts == afterCanceledStart,
+            "Opening during startup must not leave capture running or retry it")
+        model.manualAngle = 42
+        await wait("A later bend must still connect") { model.capture.running }
+        print("PASS: open-during-start cancellation, stop-before-rebend, no idle capture retries")
 
         NSWorkspace.shared.notificationCenter.post(name: NSWorkspace.willSleepNotification, object: nil)
         check(
@@ -172,14 +235,16 @@ final class LidSensor {
             model.status.contains("Allow BendMac")
         }
         model.followLid = true
-        model.sensor.onAngle?(118)
-        model.sensor.onAngle?(119)
+        model.sensor.onAngle?(42)
+        model.sensor.onAngle?(43)
         try? await Task.sleep(for: .milliseconds(1300))
         check(
             model.capture.attempts == beforeDenial + 1,
             "Permission denial must not repeatedly prompt on sensor/input changes")
         model.enable()
-        await wait("Explicit retry after permission correction must work") { model.enabled }
+        await wait("Explicit retry after permission correction must work") {
+            model.enabled && model.capture.running
+        }
         model.disable()
         try? await Task.sleep(for: .milliseconds(100))
         check(!model.wantsEnabled && !defaults.bool(forKey: "enabled"), "Pause must persist disabled intent")
