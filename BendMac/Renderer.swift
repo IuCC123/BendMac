@@ -106,7 +106,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
     func makeView() -> MTKView {
         let view = MTKView(frame: .zero, device: device)
         view.colorPixelFormat = .bgra8Unorm
-        view.clearColor = MTLClearColorMake(0, 0, 0, 1)
+        view.clearColor = MTLClearColorMake(0, 0, 0, 0)
         view.preferredFramesPerSecond = 60
         view.framebufferOnly = true
         view.delegate = self

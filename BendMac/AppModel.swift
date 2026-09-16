@@ -312,13 +312,15 @@ final class OverlayWindow: NSPanel {
                 contentRect: screen.frame, styleMask: [.borderless, .nonactivatingPanel],
                 backing: .buffered, defer: false)
             window.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1)
-            window.isOpaque = true
-            window.backgroundColor = .black
+            // Transparent until Metal has drawn: an undrawn frame then shows the real desktop, not black.
+            window.isOpaque = false
+            window.backgroundColor = .clear
             window.hasShadow = false
             window.ignoresMouseEvents = true
             window.hidesOnDeactivate = false
             window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
             let view = renderer.makeView()
+            view.layer?.isOpaque = false
             view.isPaused = true
             window.contentView = view
             window.setFrame(screen.frame, display: true)
