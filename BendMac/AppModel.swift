@@ -471,11 +471,17 @@ final class OverlayWindow: NSPanel {
             return
         }
         let target = targetProgress
+        let hasFrame = frames.hasFrame
+        // Capture startup can return before ScreenCaptureKit delivers its first frame.
+        // Keep the undrawn overlay aligned with the real desktop instead of letting the
+        // fold advance invisibly and then appearing partway through the animation.
         progress =
-            NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-            ? target : BendMath.smooth(current: progress, target: target, dt: dt)
+            !hasFrame
+            ? 0
+            : NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+                ? target : BendMath.smooth(current: progress, target: target, dt: dt)
         sensor.setMode(!followLid ? .idle : (target > 0 || progress > 0 ? .active : .watching))
-        let visible = progress > 0.0005 && frames.get() != nil
+        let visible = progress > 0.0005 && hasFrame
         if visible && overlay?.isVisible == false {
             metalView?.isPaused = false
             overlay?.orderFrontRegardless()

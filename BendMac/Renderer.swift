@@ -26,6 +26,11 @@ final class FrameStore {
         defer { lock.unlock() }
         return latest
     }
+    var hasFrame: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return latest != nil
+    }
     /// ScreenCaptureKit display times and mach_absolute_time share the same clock.
     func get(after time: UInt64) -> CVPixelBuffer? {
         lock.lock()
