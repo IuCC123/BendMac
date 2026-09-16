@@ -3,6 +3,23 @@
     <channel>
         <title>BendMac</title>
         <item>
+            <title>0.4.10</title>
+            <pubDate>Wed, 16 Sep 2026 12:18:08 +0200</pubDate>
+            <sparkle:version>14</sparkle:version>
+            <sparkle:shortVersionString>0.4.10</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[<p>BendMac now starts the desktop fold without a black flash or a sudden size and position jump.</p>
+<ul>
+<li>Keep the overlay transparent until Metal draws its first frame.</li>
+<li>Wait for ScreenCaptureKit's first desktop frame before advancing the fold animation.</li>
+<li>Add regression coverage for delayed first-frame delivery.</li>
+</ul>
+<p>The fix was verified with three recorded fold and open cycles on an M5 MacBook Air. This release addresses #9.</p>
+]]></description>
+            <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.10/BendMac-macOS.zip" length="2599955" type="application/octet-stream" sparkle:edSignature="rv0UOEZ65psLKYPlzS/acqduqE/uql4ePEkMENyZ5Oe7U92Unu9C7J36ZR5wAf1W7IJaYL47+cOybarPGd5IAw=="/>
+        </item>
+        <item>
             <title>0.4.9</title>
             <pubDate>Mon, 14 Sep 2026 11:41:35 +0200</pubDate>
             <sparkle:version>13</sparkle:version>
