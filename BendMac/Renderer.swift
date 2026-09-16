@@ -26,6 +26,11 @@ final class FrameStore {
         defer { lock.unlock() }
         return latest
     }
+    var hasFrame: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return latest != nil
+    }
     /// ScreenCaptureKit display times and mach_absolute_time share the same clock.
     func get(after time: UInt64) -> CVPixelBuffer? {
         lock.lock()
@@ -106,7 +111,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
     func makeView() -> MTKView {
         let view = MTKView(frame: .zero, device: device)
         view.colorPixelFormat = .bgra8Unorm
-        view.clearColor = MTLClearColorMake(0, 0, 0, 1)
+        view.clearColor = MTLClearColorMake(0, 0, 0, 0)
         view.preferredFramesPerSecond = 60
         view.framebufferOnly = true
         view.delegate = self

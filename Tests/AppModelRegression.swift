@@ -11,7 +11,10 @@ struct BendParameters {
     var shadow: Float = 0.35
     var style: Float = 0
 }
-final class FrameStore { func get() -> CVPixelBuffer? { nil } }
+final class FrameStore {
+    var hasFrame = false
+    func get() -> CVPixelBuffer? { nil }
+}
 final class BendRenderer {
     var parameters: @MainActor () -> BendParameters = { BendParameters() }
     init(frames: FrameStore) throws {}
@@ -40,8 +43,10 @@ final class LidSensor {
     var running = false
     var holdStop = false
     var heldStop: CheckedContinuation<Void, Never>?
+    var deliverFrameOnStart = true
+    let frames: FrameStore
     var frameCount: Int { 0 }
-    init(frames: FrameStore) {}
+    init(frames: FrameStore) { self.frames = frames }
     func start(displayID: CGDirectDisplayID) async throws {
         let request = generation
         attempts += 1
@@ -57,6 +62,7 @@ final class LidSensor {
         guard request == generation else { throw CancellationError() }
         if !failures.isEmpty { throw failures.removeFirst() }
         running = true
+        if deliverFrameOnStart { deliverFirstFrame() }
     }
     func stop() async {
         generation += 1
@@ -65,8 +71,13 @@ final class LidSensor {
             await withCheckedContinuation { heldStop = $0 }
         }
         running = false
+        frames.hasFrame = false
     }
     func setBending(_ active: Bool) async {}
+    func deliverFirstFrame() {
+        frames.hasFrame = true
+        onFirstFrame?()
+    }
 }
 
 @main enum AppModelRegression {
@@ -109,11 +120,21 @@ final class LidSensor {
         model.manualAngle = 104.5
         try? await Task.sleep(for: .milliseconds(100))
         check(model.capture.attempts == 0, "Imperceptible lid movement must not start capture")
+        model.capture.deliverFrameOnStart = false
         model.manualAngle = 42
         await wait("Transient asynchronous failures must retry through success") {
             model.capture.running && !model.starting
         }
         check(model.capture.attempts == 3, "Expected three complete connection attempts")
+        try? await Task.sleep(for: .milliseconds(200))
+        check(
+            model.parameters().progress == 0 && model.overlay?.isVisible == false,
+            "Fold must remain aligned and hidden until capture delivers its first frame")
+        model.capture.deliverFirstFrame()
+        model.capture.deliverFrameOnStart = true
+        await wait("First capture frame must start the fold from zero") {
+            model.parameters().progress > 0.1 && model.overlay?.isVisible == true
+        }
         model.manualAngle = 115
         await wait("Opening must release the capture session and overlay") {
             !model.capture.running && model.overlay == nil
