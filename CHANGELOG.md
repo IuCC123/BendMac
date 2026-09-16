@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.10](https://github.com/IuCC123/BendMac/releases/tag/v0.4.10) - 2026-09-16
+
+BendMac now starts the desktop fold without a black flash or a sudden size and position jump.
+
+- Keep the overlay transparent until Metal draws its first frame.
+- Wait for ScreenCaptureKit's first desktop frame before advancing the fold animation.
+- Add regression coverage for delayed first-frame delivery.
+
+The fix was verified with three recorded fold and open cycles on an M5 MacBook Air. This release addresses #9.
+
 ## [0.4.9](https://github.com/IuCC123/BendMac/releases/tag/v0.4.9) - 2026-09-14
 
 BendMac now stops screen capture when the desktop fold clears. Previously, capture kept running in the background even with the effect hidden, which could interfere with protected video playback such as Apple TV.
