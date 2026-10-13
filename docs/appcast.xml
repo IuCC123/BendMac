@@ -3,6 +3,22 @@
     <channel>
         <title>BendMac</title>
         <item>
+            <title>0.4.11</title>
+            <pubDate>Tue, 13 Oct 2026 12:36:37 +0200</pubDate>
+            <sparkle:version>15</sparkle:version>
+            <sparkle:shortVersionString>0.4.11</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<p>BendMac now keeps your desktop's real colors while it bends, and the download runs on Intel MacBooks.</p>
+<ul>
+<li>Show the desktop in its real colors during the fold. Earlier versions treated captured Display P3 colors as sRGB, so the desktop looked washed out while the fold was on screen and snapped back when it cleared.</li>
+<li>Build one app for Apple silicon and Intel. Among Intel MacBooks, the lid-angle sensor is confirmed only on the 2019 16-inch MacBook Pro.</li>
+<li>Add a live check that compares colors inside the fold with the real desktop, and restore the idle capture check.</li>
+</ul>
+<p>The color fix was verified on an M5 MacBook Air with sRGB and Display P3 color charts. This release addresses #9 and #5.</p>
+]]></description>
+            <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.11/BendMac-macOS.zip" length="2904322" type="application/octet-stream" sparkle:edSignature="Jf9bNMDi3Xig+O59rnngIFGKQNTHQBLTdsspEdCmbI5WE9z+GVfrJOa5zJrDsKCxGk//0BBwQACTjtItFkWXBQ=="/>
+        </item>
+        <item>
             <title>0.4.10</title>
             <pubDate>Wed, 16 Sep 2026 12:18:08 +0200</pubDate>
             <sparkle:version>14</sparkle:version>

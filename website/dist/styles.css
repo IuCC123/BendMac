@@ -319,7 +319,7 @@ input[type=range] { min-height: 44px; touch-action: pan-y; }
 #compatibility-dialog #compatibility-title { font-size: 30px; line-height: 1.12; }
 #compatibility-title:focus { outline: none; }
 #compatibility-intro:empty { display: none; }
-.compat-panel[hidden], #compat-back[hidden], #compatible-download[hidden], #compat-source[hidden] { display: none; }
+.compat-panel[hidden], #compat-back[hidden] { display: none; }
 .compat-panel { animation: compat-step-in 200ms ease-out; }
 .compat-families { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0 10px; }
 .compat-families button { min-height: 108px; text-align: left; padding: 20px 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }

@@ -85,9 +85,7 @@
     intro.textContent = '';
     dialog.querySelector('#compat-selected').textContent = `${model.family === 'Other MacBooks' ? '' : model.family + ' · '}${model.model} · ${model.chip} · ${model.year}`;
     let badge, tone, copy, requirement = 'macOS 14+ · Apple silicon';
-    download.hidden = false;
     download.textContent = 'Download for Mac';
-    dialog.querySelector('#compat-source').hidden = true;
     if (model.status === 'Expected') {
       badge = 'Expected to work'; tone = 'caution';
       copy = 'Lid sensor confirmed. Not yet tested with BendMac.';
@@ -98,12 +96,15 @@
       badge = 'No automatic folding'; tone = 'unsupported';
       copy = 'You can still use the manual preview.';
       download.textContent = 'Download for manual preview';
-    } else if (model.status === 'Build unsupported') {
-      badge = 'Not supported'; tone = 'unsupported';
-      copy = 'This download requires Apple silicon.';
-      requirement = '';
-      download.hidden = true;
-      dialog.querySelector('#compat-source').hidden = false;
+    } else if (model.status === 'Reported working') {
+      badge = 'Reported working'; tone = 'success';
+      copy = 'A user confirmed automatic lid tracking on this model.';
+      requirement = 'macOS 14+';
+    } else if (model.status === 'Unconfirmed') {
+      badge = 'Not confirmed'; tone = 'caution';
+      copy = 'Among Intel MacBooks, only the 2019 16-inch MacBook Pro is known to have the lid sensor.';
+      requirement = 'macOS 14+';
+      download.textContent = 'Download to try';
     } else {
       badge = 'Not yet verified'; tone = 'caution';
       copy = 'Lid tracking and manual preview are unconfirmed.';
