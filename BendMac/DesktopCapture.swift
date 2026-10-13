@@ -5,7 +5,7 @@ enum CaptureError: LocalizedError {
     case overlayUnavailable
 
     var errorDescription: String? {
-        "BendMac could not safely exclude its overlay from screen capture. Try enabling it again."
+        "BendMac could not keep its fold out of screen capture."
     }
 }
 

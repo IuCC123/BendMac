@@ -36,6 +36,11 @@ import ScreenCaptureKit
             defaults.removePersistentDomain(forName: suite)
             exit(code)
         }
+        // The chart covers the display, so a stalled capture must not leave it up.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
+            print("FAIL: the check did not finish within a minute")
+            finish(1)
+        }
         do {
             showChart(on: screen)
             try await Task.sleep(for: .seconds(1))
