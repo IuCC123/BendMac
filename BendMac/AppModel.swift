@@ -330,7 +330,7 @@ final class OverlayWindow: NSPanel {
             metalView = view
             // Register the hidden overlay before querying shareable content, including at login.
             captureAttempted = true
-            try await capture.start(displayID: displayID)
+            try await capture.start(displayID: displayID, excludingWindow: CGWindowID(window.windowNumber))
             guard generation == request, !Task.isCancelled else { return .needsAttention }
             enabled = true
             starting = false

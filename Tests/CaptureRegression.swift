@@ -14,15 +14,11 @@ import ScreenCaptureKit
                 .uint32Value
         else { fatalError("An active display is required") }
 
-        let initial = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
-        if !initial.applications.contains(where: { $0.processID == ProcessInfo.processInfo.processIdentifier }
-        ) {
-            do {
-                try await capture.start(displayID: displayID)
-                fatalError("Capture must reject a missing self-exclusion")
-            } catch CaptureError.applicationUnavailable {
-                print("PASS: missing self-exclusion fails safely")
-            }
+        do {
+            try await capture.start(displayID: displayID, excludingWindow: kCGNullWindowID)
+            fatalError("Capture must reject an overlay it cannot exclude")
+        } catch CaptureError.overlayUnavailable {
+            print("PASS: a missing overlay fails safely")
         }
 
         let panel = NSPanel(
@@ -38,7 +34,7 @@ import ScreenCaptureKit
 
         // The regression is the login path: the first window exists but is hidden.
         for cycle in 1...3 {
-            try await capture.start(displayID: displayID)
+            try await capture.start(displayID: displayID, excludingWindow: CGWindowID(panel.windowNumber))
             try await Task.sleep(for: .milliseconds(500))
             panel.orderFrontRegardless()
             panel.displayIfNeeded()

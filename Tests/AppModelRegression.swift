@@ -48,7 +48,7 @@ final class LidSensor {
     let frames: FrameStore
     var frameCount: Int { 0 }
     init(frames: FrameStore) { self.frames = frames }
-    func start(displayID: CGDirectDisplayID) async throws {
+    func start(displayID: CGDirectDisplayID, excludingWindow overlayID: CGWindowID) async throws {
         let request = generation
         attempts += 1
         activeStarts += 1
