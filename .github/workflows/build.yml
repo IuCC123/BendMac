@@ -15,7 +15,13 @@ jobs:
           if ! xcrun metal --version; then
             xcodebuild -downloadComponent MetalToolchain
           fi
-          xcodebuild -project BendMac.xcodeproj -scheme BendMac -configuration Release -derivedDataPath build CODE_SIGN_IDENTITY=- build
+          xcodebuild -project BendMac.xcodeproj -scheme BendMac -configuration Release -destination 'generic/platform=macOS' -derivedDataPath build CODE_SIGN_IDENTITY=- build
+      - name: Verify universal binary
+        run: |
+          app=build/Build/Products/Release/BendMac.app
+          for binary in "$app/Contents/MacOS/BendMac" "$app/Contents/Frameworks/Sparkle.framework/Sparkle"; do
+            for arch in arm64 x86_64; do lipo "$binary" -verify_arch "$arch"; done
+          done
       - name: Verify animation math
         run: |
           swiftc BendMac/BendMath.swift Tests/main.swift -o /tmp/bendmac-tests
