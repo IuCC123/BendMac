@@ -10,11 +10,13 @@ import Metal
         let queue = device.makeCommandQueue()!
         let width = 2880
         let height = 1864
-        var frame: CVPixelBuffer?
+        var created: CVPixelBuffer?
         CVPixelBufferCreate(
             nil, width, height, kCVPixelFormatType_32BGRA,
             [kCVPixelBufferMetalCompatibilityKey: true, kCVPixelBufferIOSurfacePropertiesKey: [:]] as CFDictionary,
-            &frame)
+            &created)
+        let frame = created!
+        let unheld = CFGetRetainCount(frame)
         let target = device.makeTexture(
             descriptor: .texture2DDescriptor(
                 pixelFormat: .bgra8Unorm, width: width, height: height, mipmapped: false))!
@@ -23,12 +25,12 @@ import Metal
             CVMetalTextureCacheCreate(nil, nil, device, nil, &cache)
             var texture: CVMetalTexture?
             CVMetalTextureCacheCreateTextureFromImage(
-                nil, cache!, frame!, nil, .bgra8Unorm, width, height, 0, &texture)
+                nil, cache!, frame, nil, .bgra8Unorm, width, height, 0, &texture)
             let command = queue.makeCommandBuffer()!
             let blit = command.makeBlitCommandEncoder()!
             blit.copy(from: CVMetalTextureGetTexture(texture!)!, to: target)
             blit.endEncoding()
-            command.hold(texture, frame: frame, from: cache!)
+            command.hold(texture!, frame: frame, from: cache!)
             texture = nil
             command.commit()
             command.waitUntilScheduled()
@@ -40,7 +42,14 @@ import Metal
             $0.commit()
             $0.waitUntilCompleted()
         }
-        Thread.sleep(forTimeInterval: 0.2)
+        let deadline = Date().addingTimeInterval(5)
+        while CFGetRetainCount(frame) != unheld && Date() < deadline {
+            Thread.sleep(forTimeInterval: 0.01)
+        }
+        guard CFGetRetainCount(frame) == unheld else {
+            print("FAIL: \(CFGetRetainCount(frame) - unheld) frame references were still held after the GPU finished")
+            exit(1)
+        }
         print("PASS: 4000 texture caches freed while the GPU released their frames")
     }
 }

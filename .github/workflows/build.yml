@@ -26,6 +26,8 @@ jobs:
         run: |
           swiftc BendMac/BendMath.swift Tests/main.swift -o /tmp/bendmac-tests
           /tmp/bendmac-tests
+      - name: Verify captured frame release
+        run: ./scripts/verify-texture-cache.sh
       - uses: actions/upload-artifact@v4
         with:
           name: BendMac-build
