@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.11](https://github.com/IuCC123/BendMac/releases/tag/v0.4.11) - 2026-10-13
+
+BendMac now keeps your desktop's real colors while it bends, and the download runs on Intel MacBooks.
+
+- Show the desktop in its real colors during the fold. Earlier versions treated captured Display P3 colors as sRGB, so the desktop looked washed out while the fold was on screen and snapped back when it cleared.
+- Build one app for Apple silicon and Intel. Among Intel MacBooks, the lid-angle sensor is confirmed only on the 2019 16-inch MacBook Pro.
+- Add a live check that compares colors inside the fold with the real desktop, and restore the idle capture check.
+
+The color fix was verified on an M5 MacBook Air with sRGB and Display P3 color charts. This release addresses #9 and #5.
+
 ## [0.4.10](https://github.com/IuCC123/BendMac/releases/tag/v0.4.10) - 2026-09-16
 
 BendMac now starts the desktop fold without a black flash or a sudden size and position jump.
