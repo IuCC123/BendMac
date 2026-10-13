@@ -10,7 +10,7 @@ Inspired by [Bendy](https://trybendy.app/) and the iPhone Duo folding animation.
 
 ## Install
 
-Requires **macOS 14+** and an **Apple silicon MacBook with a lid-angle sensor**. Tested hardware so far: M5 MacBook Air. If you try another model, please [let us know](https://github.com/IuCC123/BendMac/issues).
+Requires **macOS 14+** and a **MacBook with a lid-angle sensor**. The current download runs on Apple silicon only. On an Intel Mac, [build from source](#build-from-source). Tested hardware so far: M5 MacBook Air, and a 2019 16-inch Intel MacBook Pro built from source ([#5](https://github.com/IuCC123/BendMac/issues/5)). Automatic lid tracking does not work on the 2020 M1 MacBook Air or the 13-inch M1 and M2 MacBook Pro. On those models, turn off **Lid Behavior → Follow physical lid** and set the **Desktop angle** by hand instead. If you try another model, please [let us know](https://github.com/IuCC123/BendMac/issues).
 
 1. Open the DMG and drag BendMac into Applications.
 2. Open BendMac and turn on **General → Enable BendMac**.
@@ -42,7 +42,7 @@ With XcodeGen installed:
 ./scripts/build.sh
 ```
 
-The app is written to `build/Build/Products/Release/BendMac.app`. Run `./scripts/dmg.sh` to package a DMG.
+The universal app (Apple silicon and Intel) is written to `build/Build/Products/Release/BendMac.app`. Run `./scripts/dmg.sh` to package a DMG.
 
 `./scripts/verify.sh` checks lifecycle recovery, saved settings, idle animation timers, motion math, signature, sensor, and Metal rendering. It needs a Mac; FFmpeg is optional for exporting the preview video.
 
