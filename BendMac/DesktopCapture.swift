@@ -2,10 +2,10 @@ import CoreMedia
 import ScreenCaptureKit
 
 enum CaptureError: LocalizedError {
-    case applicationUnavailable
+    case overlayUnavailable
 
     var errorDescription: String? {
-        "BendMac could not safely exclude its own windows from screen capture. Try enabling it again."
+        "BendMac could not safely exclude its overlay from screen capture. Try enabling it again."
     }
 }
 
@@ -31,7 +31,7 @@ final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
     }
     init(frames: FrameStore) { self.frames = frames }
 
-    @MainActor func start(displayID: CGDirectDisplayID) async throws {
+    @MainActor func start(displayID: CGDirectDisplayID, excludingWindow overlayID: CGWindowID) async throws {
         generation += 1
         let request = generation
         let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
@@ -39,12 +39,12 @@ final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
         guard let display = content.displays.first(where: { $0.displayID == displayID }) else {
             throw NSError(domain: "The built-in display is unavailable.", code: 1)
         }
-        let ownApp = content.applications.filter { $0.processID == ProcessInfo.processInfo.processIdentifier }
-        // A login launch may have no on-screen windows. Never start an unfiltered
-        // stream if ScreenCaptureKit has not discovered this process yet.
-        guard !ownApp.isEmpty else { throw CaptureError.applicationUnavailable }
-        // Exclude our entire process, including windows shown after capture starts.
-        let filter = SCContentFilter(display: display, excludingApplications: ownApp, exceptingWindows: [])
+        // Never start an unfiltered stream: the overlay would capture its own output.
+        guard let overlay = content.windows.first(where: { $0.windowID == overlayID }) else {
+            throw CaptureError.overlayUnavailable
+        }
+        // Only the overlay is excluded, so BendMac's Settings window bends with the desktop.
+        let filter = SCContentFilter(display: display, excludingWindows: [overlay])
         let config = SCStreamConfiguration()
         // Use the display mode's backing resolution for Retina capture.
         let mode = CGDisplayCopyDisplayMode(displayID)
