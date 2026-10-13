@@ -321,6 +321,7 @@ final class OverlayWindow: NSPanel {
             window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
             let view = renderer.makeView()
             view.layer?.isOpaque = false
+            view.colorspace = CGColorSpace(name: DesktopCapture.colorSpace)
             view.isPaused = true
             window.contentView = view
             window.setFrame(screen.frame, display: true)
