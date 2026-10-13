@@ -54,8 +54,10 @@ import ScreenCaptureKit
                 model.enabled && model.overlay == nil
             }
             let desktop = try await screenshot(screen)
-            let chartRed = desktop.rgb(x: desktop.width / 16, y: desktop.height / 2)
-            guard chartRed[0] > 240 && chartRed[1] < 16 && chartRed[2] < 16 else {
+            // Relative checks: an sRGB display profile renders the P3 bands less saturated.
+            let red = desktop.rgb(x: desktop.width / 16, y: desktop.height / 2)
+            let green = desktop.rgb(x: desktop.width * 3 / 16, y: desktop.height / 2)
+            guard red[0] - max(red[1], red[2]) > 100 && green[1] - max(green[0], green[2]) > 100 else {
                 print("FAIL: the color chart is not on screen")
                 finish(1)
             }
