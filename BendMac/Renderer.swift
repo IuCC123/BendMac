@@ -61,6 +61,14 @@ private enum RenderError: LocalizedError {
     }
 }
 
+extension MTLCommandBuffer {
+    /// Keeps a captured frame and its texture alive until the GPU finishes with them.
+    func hold(_ texture: CVMetalTexture?, frame: CVPixelBuffer?, from cache: CVMetalTextureCache) {
+        let held = (texture, frame)
+        addCompletedHandler { _ in withExtendedLifetime(held) {} }
+    }
+}
+
 final class BendRenderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     private let queue: MTLCommandQueue
@@ -149,9 +157,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         encoder.endEncoding()
         command.present(drawable)
-        // Retain the CV-backed texture until GPU completion.
-        let held = (retained, sourceFrame)
-        command.addCompletedHandler { _ in withExtendedLifetime(held) {} }
+        command.hold(retained, frame: sourceFrame, from: cache)
         command.commit()
     }
     private func encodeBlur(_ source: MTLTexture, command: MTLCommandBuffer, strength: Float) throws
