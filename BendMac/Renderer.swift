@@ -63,9 +63,14 @@ private enum RenderError: LocalizedError {
 
 extension MTLCommandBuffer {
     /// Keeps a captured frame and its texture alive until the GPU finishes with them.
+    /// CoreVideo crashes if a cache is freed on one thread while its last texture is freed
+    /// on another, so the texture is released before this buffer's hold on the cache.
     func hold(_ texture: CVMetalTexture?, frame: CVPixelBuffer?, from cache: CVMetalTextureCache) {
-        let held = (texture, frame)
-        addCompletedHandler { _ in withExtendedLifetime(held) {} }
+        var held = Optional((texture, frame))
+        addCompletedHandler { _ in
+            _ = held.take()
+            withExtendedLifetime(cache) {}
+        }
     }
 }
 
