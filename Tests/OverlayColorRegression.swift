@@ -2,8 +2,8 @@ import AppKit
 import ScreenCaptureKit
 
 /// Run with Screen Recording permission on a MacBook with the built-in display active.
-/// A second app bundle briefly fills the display with a color chart, because BendMac excludes
-/// its own app from capture. Screenshots stay in memory and are never saved.
+/// Briefly fills the display with a color chart drawn by this process, like BendMac's own
+/// Settings window, so the fold must keep it. Screenshots stay in memory and are never saved.
 @main enum OverlayColorRegression {
     static let chart = [
         NSColor(displayP3Red: 1, green: 0, blue: 0, alpha: 1),
@@ -23,29 +23,21 @@ import ScreenCaptureKit
             print("FAIL: the built-in display is not active")
             exit(1)
         }
-        if CommandLine.arguments.contains("--chart") {
-            showChart(on: screen)
-        } else {
-            Task { @MainActor in await run(on: screen) }
-        }
+        Task { @MainActor in await run(on: screen) }
         app.run()
     }
 
     @MainActor static func run(on screen: NSScreen) async {
-        let chartProcess = Process()
-        chartProcess.executableURL = URL(fileURLWithPath: CommandLine.arguments[1])
-        chartProcess.arguments = ["--chart"]
         let suite = "local.jamie.BendMac.color-tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         let model = AppModel(defaults: defaults)
         func finish(_ code: Int32) -> Never {
             model.disable()
-            chartProcess.terminate()
             defaults.removePersistentDomain(forName: suite)
             exit(code)
         }
         do {
-            try chartProcess.run()
+            showChart(on: screen)
             try await Task.sleep(for: .seconds(1))
             model.followLid = false
             model.manualAngle = 115
@@ -80,7 +72,7 @@ import ScreenCaptureKit
                 }
             }
             if failures > 0 { finish(1) }
-            print("PASS: a starting fold keeps the desktop's sRGB and Display P3 colors")
+            print("PASS: a starting fold keeps BendMac's own window and its sRGB and Display P3 colors")
             finish(0)
         } catch {
             print("FAIL: \(error.localizedDescription); status=\(model.status)")
@@ -96,7 +88,6 @@ import ScreenCaptureKit
         window.contentView = ChartView()
         window.setFrame(screen.frame, display: true)
         window.orderFrontRegardless()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 30) { exit(0) }
     }
 
     final class ChartView: NSView {
