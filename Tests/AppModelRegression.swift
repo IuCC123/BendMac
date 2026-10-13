@@ -31,6 +31,7 @@ final class LidSensor {
     func setSuspended(_ suspended: Bool) { self.suspended = suspended }
 }
 @MainActor final class DesktopCapture {
+    static let colorSpace = CGColorSpace.displayP3
     var onError: ((Error) -> Void)?
     var onFirstFrame: (() -> Void)?
     var failures: [Error] = []

@@ -11,6 +11,7 @@ struct BendParameters {
     var style: Float = 0
 }
 final class FrameStore {
+    var hasFrame: Bool { false }
     func get() -> CVPixelBuffer? { nil }
     func put(_ buffer: CVPixelBuffer, displayTime: UInt64) {}
     func clear() {}

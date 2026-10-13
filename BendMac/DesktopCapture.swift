@@ -10,6 +10,8 @@ enum CaptureError: LocalizedError {
 }
 
 final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
+    /// The overlay layer must be tagged with this space, or the fold shifts the desktop's colors.
+    static let colorSpace = CGColorSpace.displayP3
     let frames: FrameStore
     @MainActor private var stream: SCStream?
     @MainActor private var config: SCStreamConfiguration?
@@ -51,6 +53,7 @@ final class DesktopCapture: NSObject, SCStreamOutput, SCStreamDelegate {
         config.minimumFrameInterval = CMTime(value: 1, timescale: 5)
         config.queueDepth = 3
         config.pixelFormat = kCVPixelFormatType_32BGRA
+        config.colorSpaceName = Self.colorSpace
         config.showsCursor = false
         config.capturesAudio = false
         let stream = SCStream(filter: filter, configuration: config, delegate: self)
