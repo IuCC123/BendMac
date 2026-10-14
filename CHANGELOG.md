@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.12](https://github.com/IuCC123/BendMac/releases/tag/v0.4.12) - 2026-10-14
+
+BendMac's own windows now bend with the rest of the desktop, and a rare crash at the end of a fold is fixed.
+
+- Bend the Settings window and BendMac's menu bar icon with the desktop. Earlier versions hid them while the fold was on screen, so with Settings open each fold looked like a flash.
+- Fix a rare crash when a fold ended or the effect was paused while the GPU was still releasing the last captured frame.
+- Add checks for both fixes, and run the frame-release check in CI.
+
+Both fixes were verified on an M5 MacBook Air. This release addresses #9. After updating, macOS asks again for Screen Recording permission, because releases are not yet signed with a stable identity (#15).
+
 ## [0.4.11](https://github.com/IuCC123/BendMac/releases/tag/v0.4.11) - 2026-10-13
 
 BendMac now keeps your desktop's real colors while it bends, and the download runs on Intel MacBooks.
