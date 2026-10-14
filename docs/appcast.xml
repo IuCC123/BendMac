@@ -3,6 +3,22 @@
     <channel>
         <title>BendMac</title>
         <item>
+            <title>0.4.12</title>
+            <pubDate>Wed, 14 Oct 2026 23:00:59 +0200</pubDate>
+            <sparkle:version>16</sparkle:version>
+            <sparkle:shortVersionString>0.4.12</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<p>BendMac's own windows now bend with the rest of the desktop, and a rare crash at the end of a fold is fixed.</p>
+<ul>
+<li>Bend the Settings window and BendMac's menu bar icon with the desktop. Earlier versions hid them while the fold was on screen, so with Settings open each fold looked like a flash.</li>
+<li>Fix a rare crash when a fold ended or the effect was paused while the GPU was still releasing the last captured frame.</li>
+<li>Add checks for both fixes, and run the frame-release check in CI.</li>
+</ul>
+<p>Both fixes were verified on an M5 MacBook Air. This release addresses #9. After updating, macOS asks again for Screen Recording permission, because releases are not yet signed with a stable identity (#15).</p>
+]]></description>
+            <enclosure url="https://github.com/IuCC123/BendMac/releases/download/v0.4.12/BendMac-macOS.zip" length="2904961" type="application/octet-stream" sparkle:edSignature="3zfz9fd+N0ZUaBDV3fMCyOZhFFLq2fL9jwT+jkaXOWNgEM6okPKDT/FwmCbYeZ+mLnQUugP8D3t6tg0cqUhiAw=="/>
+        </item>
+        <item>
             <title>0.4.11</title>
             <pubDate>Tue, 13 Oct 2026 12:36:37 +0200</pubDate>
             <sparkle:version>15</sparkle:version>
