@@ -61,6 +61,19 @@ private enum RenderError: LocalizedError {
     }
 }
 
+extension MTLCommandBuffer {
+    /// Keeps a captured frame and its texture alive until the GPU finishes with them.
+    /// CoreVideo crashes if a cache is freed on one thread while its last texture is freed
+    /// on another, so the texture is released before this buffer's hold on the cache.
+    func hold(_ texture: CVMetalTexture, frame: CVPixelBuffer, from cache: CVMetalTextureCache) {
+        var held = Optional((texture, frame))
+        addCompletedHandler { _ in
+            _ = held.take()
+            withExtendedLifetime(cache) {}
+        }
+    }
+}
+
 final class BendRenderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     private let queue: MTLCommandQueue
@@ -149,9 +162,7 @@ final class BendRenderer: NSObject, MTKViewDelegate {
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         encoder.endEncoding()
         command.present(drawable)
-        // Retain the CV-backed texture until GPU completion.
-        let held = (retained, sourceFrame)
-        command.addCompletedHandler { _ in withExtendedLifetime(held) {} }
+        if let retained, let sourceFrame { command.hold(retained, frame: sourceFrame, from: cache) }
         command.commit()
     }
     private func encodeBlur(_ source: MTLTexture, command: MTLCommandBuffer, strength: Float) throws
