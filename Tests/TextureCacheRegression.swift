@@ -20,6 +20,26 @@ import Metal
         let target = device.makeTexture(
             descriptor: .texture2DDescriptor(
                 pixelFormat: .bgra8Unorm, width: width, height: height, mipmapped: false))!
+        let gate = device.makeSharedEvent()!
+        do {
+            var cache: CVMetalTextureCache?
+            CVMetalTextureCacheCreate(nil, nil, device, nil, &cache)
+            var texture: CVMetalTexture?
+            CVMetalTextureCacheCreateTextureFromImage(
+                nil, cache!, frame, nil, .bgra8Unorm, width, height, 0, &texture)
+            let command = queue.makeCommandBuffer()!
+            command.encodeWaitForEvent(gate, value: 1)
+            let blit = command.makeBlitCommandEncoder()!
+            blit.copy(from: CVMetalTextureGetTexture(texture!)!, to: target)
+            blit.endEncoding()
+            command.hold(texture!, frame: frame, from: cache!)
+            command.commit()
+        }
+        guard CFGetRetainCount(frame) > unheld else {
+            print("FAIL: the frame was released before the GPU finished with it")
+            exit(1)
+        }
+        gate.signaledValue = 1
         for _ in 0..<4000 {
             var cache: CVMetalTextureCache?
             CVMetalTextureCacheCreate(nil, nil, device, nil, &cache)
